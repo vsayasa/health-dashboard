@@ -1,4 +1,28 @@
+# Read Me!
 
+A health dashboard application by Vonn, Adrien, Grace, and Tamiya.
+
+## Getting Started
+
+Please make sure you are using Node version >=22.21.1
+
+### Installation
+
+Install the dependencies:
+
+```bash
+npm install
+```
+
+### Development
+
+Start the development server with HMR:
+
+```bash
+npm run dev
+```
+
+Your application will be available at `http://localhost:5173`.
 
 ## Basic commands pipeline for adding things:
 
