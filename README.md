@@ -1,6 +1,7 @@
-# Read Me!
+# VitaMetrics: Personal Health Dashboard
+*By Adrien Rozario, Vonn Sayasa, Grace Yu, and Tamiya Phillips*
 
-A health dashboard application by Vonn, Adrien, Grace, and Tamiya.
+VitaMetrics is a cloud-based personal health tracking dashboard that helps users monitor key lifestyle and wellness metrics such as sleep, exercise, nutrition, mood, and daily activity. The application allows users to log daily health data and visualize trends through interactive charts and summaries, making it easier to identify patterns and maintain healthy habits.
 
 ## Getting Started
 
