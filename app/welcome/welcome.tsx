@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import logoDark from "./logo-dark.svg";
 import logoLight from "./logo-light.svg";
 
@@ -9,26 +10,41 @@ export function Welcome() {
           <div className="w-[500px] max-w-[100vw] p-4">
          {/* Insert Logo here */}
          <h1 className="text-3xl font-bold text-center">Welcome to the vitametrics homepage!</h1>
-            {/* <img
+            <img
               src={logoLight}
-              alt="React Router"
+              alt="Vite"
               className="block w-full dark:hidden"
             />
             <img
               src={logoDark}
               alt="React Router"
               className="hidden w-full dark:block"
-            /> */}
+            />
           </div>
         </header>
         <div className="max-w-[300px] w-full space-y-6 px-4">
           <nav className="rounded-3xl border border-gray-200 p-6 dark:border-gray-700 space-y-4">
             <p className="leading-6 text-gray-700 dark:text-gray-200 text-center">
-              This is the first commit!
+              This is the second commit!
             </p>
-            <ul>
-           
-            </ul>
+              
+        <ul className="nav-list">
+          <li className="nav-item">
+            <Link to="/login" className="nav-link">
+              Login
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/register" className="nav-link">
+              Register
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/dashboard" className="nav-link">
+              Dashboard
+            </Link>
+          </li>
+        </ul>
           </nav>
         </div>
       </div>
