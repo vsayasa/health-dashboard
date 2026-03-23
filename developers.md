@@ -1,6 +1,6 @@
 ## Useful Plugins in VSCode:
 
-**| Title                                      | Author            |**
+| Title                                      | Author            |
 |-------------------------------------------|-------------------|
 | ES7+ React/Redux/React-Native snippets    | dsznajder         |
 | File Utils                                | Steffen Leistner  |
