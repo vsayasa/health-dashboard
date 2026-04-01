@@ -1,22 +1,31 @@
-import { Router } from "express";
-import type { Goal } from "../models/Goal";
+import express from "express";
+const router = express.Router();
 
-const router = Router();
-
-// in-memory storage for now
-const goals: Goal[] = [];
-
-// add a new goal
-router.post("/", (req, res) => {
-  const goal: Goal = { ...req.body };
-  goals.push(goal);
-  res.status(201).json(goal);
+// GET /api/goals
+router.get("/", (req, res) => {
+  res.json({ message: "Get goals" });
 });
 
-// fetch all goals for a user
-router.get("/:user_id", (req, res) => {
-  const user_goals = goals.filter(g => g.user_id === req.params.user_id);
-  res.json(user_goals);
+// POST /api/goals
+router.post("/", (req, res) => {
+  const { user_id, metric_type, goal_value, start_date, end_date } = req.body;
+
+  if (!user_id || !metric_type || !goal_value) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  const newGoal = {
+    user_id,
+    metric_type,
+    goal_value,
+    start_date: start_date || new Date(),
+    end_date: end_date || null
+  };
+
+  res.status(201).json({
+    message: "Goal saved",
+    data: newGoal
+  });
 });
 
 export default router;
