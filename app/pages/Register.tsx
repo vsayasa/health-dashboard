@@ -32,11 +32,11 @@ export default function Register(){
             <input
               type="username"
               placeholder="Enter your username"
-              value={username}
+              value={email}
               style={{ color: "#000000" }}
               onChange={(e) => {
                 const v = e.target.value;
-                setUsername(v);
+                setEmail(v);
               }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
