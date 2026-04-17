@@ -26,6 +26,20 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/", async (req, res) => {
+  try {
+    const query = {
+      query: "SELECT * FROM c"
+    };
+
+    const results = await queryItems("Users", query);
+
+    res.json(results);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 /**
  * GET /api/users/:id
  * Get user by ID
