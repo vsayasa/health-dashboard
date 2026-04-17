@@ -5,10 +5,13 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useNavigate
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { supabase } from './supabaseClient';
+import { useEffect } from "react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -42,6 +45,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+
+  // auth listener, enable only once protected layouts are created.
+//   const navigate = useNavigate();
+//   useEffect(() => {
+//     const { data } = supabase.auth.onAuthStateChange((event, session) => {
+//       if (event === "SIGNED_OUT") {
+//         navigate("/login");
+//       }
+// });
+// return () => {
+//   data.subscription.unsubscribe();
+// };
+// }, [navigate]);
   return <Outlet />;
 }
 

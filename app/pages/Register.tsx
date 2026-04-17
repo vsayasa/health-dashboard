@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { useState, useEffect } from "react";
+import { supabase } from "../supabaseClient"
 
 export default function Register(){
     const [username, setUsername] = useState("");
@@ -10,8 +11,7 @@ export default function Register(){
         e.preventDefault();
         setIsLoading(true);
 
-        // See if it works?
- console.log("Register attempt:", { username, password });
+        const { data, error } 
         setIsLoading(false);
         };
 
