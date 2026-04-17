@@ -4,23 +4,22 @@ import { upsertItem, queryItems } from "../services/cosmosService";
 const router = express.Router();
 
 /**
- * POST /api/goals
- * Create or update a goal
+ * POST /api/files
+ * Save file metadata
  */
 router.post("/", async (req, res) => {
   try {
     const data = req.body;
 
-    const goal = {
-      id: data.id || `${data.user_id}_${data.metric_type}`,
+    const file = {
+      id: data.id || `${data.user_id}_${Date.now()}`,
       user_id: data.user_id,
-      metric_type: data.metric_type,
-      goal_value: data.goal_value,
-      start_date: data.start_date,
-      end_date: data.end_date || null
+      date: data.date,
+      file_url: data.file_url,
+      file_type: data.file_type // "meal" or "report"
     };
 
-    const result = await upsertItem("Goals", goal);
+    const result = await upsertItem("Files", file);
 
     res.json(result);
   } catch (err: any) {
@@ -29,7 +28,7 @@ router.post("/", async (req, res) => {
 });
 
 /**
- * GET /api/goals?user_id=...
+ * GET /api/files?user_id=...
  */
 router.get("/", async (req, res) => {
   try {
@@ -40,7 +39,7 @@ router.get("/", async (req, res) => {
       parameters: [{ name: "@user_id", value: user_id }]
     };
 
-    const results = await queryItems("Goals", query);
+    const results = await queryItems("Files", query);
 
     res.json(results);
   } catch (err: any) {

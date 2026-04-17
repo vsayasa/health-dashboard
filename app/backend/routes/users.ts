@@ -1,37 +1,50 @@
-import { Router } from "express";
-import type { User } from "../models/User";
-import crypto from "crypto";
+import express from "express";
+import { upsertItem, queryItems } from "../services/cosmosService";
 
-const router = Router();
+const router = express.Router();
 
-// in-memory storage for now
-const users: User[] = [];
+/**
+ * POST /api/users
+ * Create a new user
+ */
+router.post("/", async (req, res) => {
+  try {
+    const { id, username, email } = req.body;
 
-// add a new user
-router.post("/register", (req, res) => {
-    const { username, email, password} = req.body;
-        const new_user: User = {
-        user_id: crypto.randomUUID(),
-        username,
-        email,
-        password_hash: password, 
-        created_at: new Date(),
+    const user = {
+      id, // partition key
+      username,
+      email,
+      created_at: new Date().toISOString()
     };
-  users.push(new_user);
-  res.status(201).json({ message: "User created", user_id: new_user.user_id });
+
+    const result = await upsertItem("Users", user);
+
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// fetch user data
-router.get("/", (req, res) => {
-  res.json(users);
-});
+/**
+ * GET /api/users/:id
+ * Get user by ID
+ */
+router.get("/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
 
-// temporary login route
-router.post("/login", (req, res) => {
-  const { email, password } = req.body;
-  const user = users.find(u => u.email === email && u.password_hash === password);
-  if (!user) return res.status(401).json({ message: "Invalid credentials" });
-  res.json({ message: "Login successful", user_id: user.user_id });
+    const query = {
+      query: "SELECT * FROM c WHERE c.id = @id",
+      parameters: [{ name: "@id", value: id }]
+    };
+
+    const results = await queryItems("Users", query);
+
+    res.json(results[0] || null);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 export default router;

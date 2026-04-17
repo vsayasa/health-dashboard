@@ -1,23 +1,25 @@
 import express from "express";
-import sleepRouter from "./routes/sleep";
-import exerciseRouter from "./routes/exercise";
-import nutritionRouter from "./routes/nutrition";
-import wellnessRouter from "./routes/wellness";
-import goalsRouter from "./routes/goals";
+import metricsRoutes from "./routes/metrics";
+import usersRoutes from "./routes/users";
+import goalsRoutes from "./routes/goals";
+import filesRoutes from "./routes/files";
+
 const app = express();
+
 app.use(express.json());
 
-app.use("/api/sleep", sleepRouter);
-app.use("/api/exercise", exerciseRouter);
-app.use("/api/nutrition", nutritionRouter);
-app.use("/api/wellness", wellnessRouter);
-app.use("/api/goals", goalsRouter);
-
-// Root test route
+// Root test
 app.get("/", (req, res) => {
-  res.send("API is running 🚀");
+  res.send("CosmosDB is implemented. API is running 🚀");
 });
 
-// GET function for the app:
+// Routes
+app.use("/api/metrics", metricsRoutes);
+app.use("/api/users", usersRoutes);
+app.use("/api/goals", goalsRoutes);
+app.use("/api/files", filesRoutes);
 
-app.listen(3001, () => console.log("API running on http://localhost:3001"));
+app.listen(3001, () => {
+  console.log("API running on http://localhost:3001");
+});
+
