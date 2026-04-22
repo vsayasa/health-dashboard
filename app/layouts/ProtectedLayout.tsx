@@ -20,6 +20,23 @@ export default function ProtectedLayout() {
       
       // Check if they exist in db:
       console.log(data.user);
+      const doTheyExist = await fetch(`/api/users/${data.user.email}`);
+      const response = await doTheyExist.json();
+      if (response) {
+      console.log(response);
+      }
+      else {
+      console.log("they aint here chief");
+
+      // Here put code to create user
+     await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            id: data.user.email
+        })
+    });
+      }
       setIsLoggedin(true);
     }
     setLoading(false);
