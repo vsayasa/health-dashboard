@@ -47,17 +47,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
 
   // auth listener, enable only once protected layouts are created.
-//   const navigate = useNavigate();
-//   useEffect(() => {
-//     const { data } = supabase.auth.onAuthStateChange((event, session) => {
-//       if (event === "SIGNED_OUT") {
-//         navigate("/login");
-//       }
-// });
-// return () => {
-//   data.subscription.unsubscribe();
-// };
-// }, [navigate]);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        navigate("/login");
+      }
+});
+return () => {
+  data.subscription.unsubscribe();
+};
+}, [navigate]);
   return <Outlet />;
 }
 
