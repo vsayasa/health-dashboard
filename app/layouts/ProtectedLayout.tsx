@@ -16,7 +16,9 @@ export default function ProtectedLayout() {
       navigate('/login');
     }
     else {
-      console.log("User authenticated");  
+      
+      // Check if they exist in db:
+      console.log(data.user);
       setIsLoggedin(true);
     }
     setLoading(false);
