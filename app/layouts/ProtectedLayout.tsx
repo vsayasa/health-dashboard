@@ -2,6 +2,7 @@ import { Outlet } from "react-router";
 import { supabase } from "../supabaseClient";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import Navbar from "../components/ui/navbar";
 
 export default function ProtectedLayout() {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ export default function ProtectedLayout() {
 
         return (
     <div className="protected-layout">
+      <Navbar />
       <Outlet />
     </div>
   );

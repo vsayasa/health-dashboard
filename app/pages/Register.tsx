@@ -7,6 +7,7 @@ export default function Register(){
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const [emailError, setEmailError] = useState("");
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
@@ -18,7 +19,10 @@ export default function Register(){
         navigate('/login');
         };
 
-
+      function validateEmail(em: string) {
+          const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          return re.test(em);
+        }
     return (
             <div className="flex items-center justify-center min-h-screen">
       <div className="bg-white">
@@ -30,13 +34,18 @@ export default function Register(){
               Email
             </label>
             <input
-              type="username"
-              placeholder="Enter your username"
+              type="email"
+              placeholder="Enter your email"
               value={email}
               style={{ color: "#000000" }}
               onChange={(e) => {
                 const v = e.target.value;
                 setEmail(v);
+                setEmailError(
+                  v === "" || validateEmail(v)
+                    ? ""
+                    : "Please enter a valid email address.",
+                );
               }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required

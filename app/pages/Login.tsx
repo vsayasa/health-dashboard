@@ -1,19 +1,24 @@
 import  React, { useState } from "react";
+import { supabase } from  "../supabaseClient";
+import { useNavigate } from "react-router";
 
 export default function Login() {
-  const [username, setUsername] = useState("");
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
+   const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    // Handle login logic here
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    setIsLoading(false);
 
-        // Handle login logic here. Needs DB Connection to work
-        console.log("Login attempt:", { username, password });
-        setIsLoading(false);
-    };
+    // Temporary? maybe? Should work assuming protectedlayout code works.
+    navigate("/dashboard");
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -27,8 +32,8 @@ const [isLoading, setIsLoading] = useState(false);
             <input
               type="email"
               placeholder="Enter your email"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
