@@ -1,7 +1,3 @@
-export default function Dashboard() {
-return (
+import  Dashboard  from "../pages/dashboard";
 
-    <h1>Whoops. Nothing here yet. Check back later. :&#41;</h1>
-)
-
-}
+export default Dashboard;
