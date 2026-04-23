@@ -6,7 +6,13 @@ import {
   YAxis,
   Tooltip,
   BarChart,
-  Bar
+  Bar,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  ScatterChart,
+  Scatter
 } from "recharts";
 
 export default function Dashboard() {
@@ -31,6 +37,23 @@ export default function Dashboard() {
     { day: "Fri", hours: 1 },
     { day: "Sat", hours: 0 },
     { day: "Sun", hours: 0 },
+  ];
+
+  // Nutrition Data
+  const nutritionData = [
+    { name: "Protein", value: 30 },
+    { name: "Carbs", value: 50 },
+    { name: "Fat", value: 20 },
+  ];
+
+  const COLORS = ["#4ade80", "#60a5fa", "#facc15"];
+
+  // Wellness Data
+  const wellnessData = [
+    { sleep: 5, mood: 2 },
+    { sleep: 6, mood: 3 },
+    { sleep: 7, mood: 4 },
+    { sleep: 8, mood: 5 },
   ];
 
   return (
@@ -75,45 +98,92 @@ export default function Dashboard() {
         <div className="grid grid-cols-3 gap-6">
 
           {/* SLEEP */}
-          <div className="col-span-2 bg-gray-800 p-6 rounded-2xl">
+          <div className="col-span-2 bg-gray-800 p-6 rounded-2xl h-[300px]">
             <h2 className="mb-2">Sleep</h2>
-            <LineChart width={400} height={200} data={sleepData}>
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="hours" stroke="#4ade80" />
-            </LineChart>
+
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart
+                data={sleepData}
+                margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+              >
+                <XAxis dataKey="day" stroke="#ccc" />
+                <YAxis stroke="#ccc" />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="hours"
+                  stroke="#4ade80"
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
 
-          {/* NUTRITION (placeholder) */}
-          <div className="bg-gray-800 p-6 rounded-2xl">
-            Nutrition Chart
+          {/* NUTRITION */}
+          <div className="bg-gray-800 p-6 rounded-2xl h-[300px]">
+            <h2 className="mb-2">Nutrition</h2>
+
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={nutritionData}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={60}
+                  outerRadius={90}
+                >
+                  {nutritionData.map((entry, index) => (
+                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
 
           {/* EXERCISE */}
-          <div className="col-span-2 bg-gray-800 p-6 rounded-2xl">
+          <div className="col-span-2 bg-gray-800 p-6 rounded-2xl h-[300px]">
             <h2 className="mb-2">Exercise</h2>
-            <BarChart width={400} height={200} data={exerciseData}>
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="hours" fill="#60a5fa" />
-            </BarChart>
+
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart
+                data={exerciseData}
+                margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+              >
+                <XAxis dataKey="day" stroke="#ccc" />
+                <YAxis stroke="#ccc" />
+                <Tooltip />
+                <Bar
+                  dataKey="hours"
+                  fill="#60a5fa"
+                  radius={[8, 8, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
 
-          {/* WELLNESS (placeholder) */}
-          <div className="bg-gray-800 p-6 rounded-2xl">
-            Wellness Chart
+          {/* WELLNESS */}
+          <div className="bg-gray-800 p-6 rounded-2xl h-[300px]">
+            <h2 className="mb-2">Wellness</h2>
+
+            <ResponsiveContainer width="100%" height={250}>
+              <ScatterChart margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                <XAxis type="number" dataKey="sleep" stroke="#ccc" />
+                <YAxis type="number" dataKey="mood" stroke="#ccc" />
+                <Tooltip cursor={{ strokeDasharray: "3 3" }} />
+                <Scatter data={wellnessData} fill="#a78bfa" />
+              </ScatterChart>
+            </ResponsiveContainer>
           </div>
 
           {/* CALORIES */}
-          <div className="bg-gray-800 p-6 rounded-2xl">
+          <div className="bg-gray-800 p-6 rounded-2xl text-center">
             <h2 className="text-gray-400">Calories</h2>
             <p className="text-3xl mt-2">2400 cal</p>
           </div>
 
           {/* WEIGHT */}
-          <div className="bg-gray-800 p-6 rounded-2xl">
+          <div className="bg-gray-800 p-6 rounded-2xl text-center">
             <h2 className="text-gray-400">Weight</h2>
             <p className="text-3xl mt-2">120 lbs</p>
           </div>
