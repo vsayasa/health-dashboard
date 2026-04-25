@@ -1,5 +1,5 @@
 import { Outlet } from "react-router";
-import { supabase } from "../supabaseClient";
+import supabase from "../supabaseClient";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import Navbar from "../components/ui/navbar";

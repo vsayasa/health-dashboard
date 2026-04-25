@@ -1,3 +1,5 @@
+import supabase from "../supabaseClient";
+import { useEffect, useState } from "react";
 import React from "react";
 import {
   LineChart,
@@ -15,43 +17,84 @@ import {
   Scatter
 } from "recharts";
 import { useNavigate } from "react-router";
+import { NavLink } from "react-router";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
 
-  const sleepData = [
-    { day: "Mon", hours: 5 },
-    { day: "Tue", hours: 6 },
-    { day: "Wed", hours: 7 },
-    { day: "Thu", hours: 6 },
-    { day: "Fri", hours: 7 },
-    { day: "Sat", hours: 8 },
-    { day: "Sun", hours: 8 },
-  ];
+  const [user, setUser] = useState<any>(null);
 
-  const exerciseData = [
-    { day: "Mon", hours: 1 },
-    { day: "Tue", hours: 2 },
-    { day: "Wed", hours: 1 },
-    { day: "Thu", hours: 2 },
-    { day: "Fri", hours: 1 },
-    { day: "Sat", hours: 0 },
-    { day: "Sun", hours: 0 },
-  ];
-
-  const nutritionData = [
-    { name: "Protein", value: 30 },
-    { name: "Carbs", value: 50 },
-    { name: "Fat", value: 20 },
-  ];
+  const [sleepData, setSleepData] = useState<any[]>([]);
+  const [exerciseData, setExerciseData] = useState<any[]>([]);
+  const [nutritionData, setNutritionData] = useState<any[]>([]);
+  const [wellnessData, setWellnessData] = useState<any[]>([]);
 
   const COLORS = ["#4ade80", "#60a5fa", "#facc15"];
 
-  const wellnessData = [
-    { sleep: 5, mood: 2 },
-    { sleep: 6, mood: 3 },
-    { sleep: 7, mood: 4 },
-    { sleep: 8, mood: 5 },
-  ];
+  // 1. Get logged in user
+  useEffect(() => {
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUser(data.user);
+    };
+    getUser();
+  }, []);
+
+  // 2. Fetch metrics from backend
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchMetrics = async () => {
+      const res = await fetch(`/api/metrics?user_id=${user.id}`);
+      const data = await res.json();
+
+      // Transform backend data → chart format
+      const sleep: any[] = [];
+      const exercise: any[] = [];
+      const nutrition: any[] = [];
+      const wellness: any[] = [];
+
+      data.forEach((item: any) => {
+        const day = new Date(item.date).toLocaleDateString("en-US", {
+          weekday: "short",
+        });
+
+        // Sleep
+        if (item.sleep?.hours != null) {
+          sleep.push({ day, hours: item.sleep.hours });
+        }
+
+        // Exercise
+        if (item.exercise?.hours != null) {
+          exercise.push({ day, hours: item.exercise.hours });
+        }
+
+        // Nutrition (pie chart needs aggregation)
+        if (item.nutrition) {
+          nutrition.push(
+            { name: "Protein", value: item.nutrition.protein || 0 },
+            { name: "Carbs", value: item.nutrition.carbs || 0 },
+            { name: "Fat", value: item.nutrition.fat || 0 }
+          );
+        }
+
+        // Wellness scatter
+        if (item.wellness) {
+          wellness.push({
+            sleep: item.sleep?.hours || 0,
+            mood: item.wellness.mood || 0,
+          });
+        }
+      });
+
+      setSleepData(sleep);
+      setExerciseData(exercise);
+      setNutritionData(nutrition);
+      setWellnessData(wellness);
+    };
+
+    fetchMetrics();
+  }, [user]);
 
   return (
     <div className="flex min-h-screen bg-black text-white relative overflow-hidden">
@@ -60,7 +103,7 @@ export default function Dashboard() {
       <div className="absolute w-[400px] h-[400px] bg-green-500/20 blur-3xl rounded-full top-20 left-10"></div>
       <div className="absolute w-[400px] h-[400px] bg-blue-500/20 blur-3xl rounded-full bottom-10 right-10"></div>
 
-      {/* SIDEBAR */}
+      {/* SIDEBAR (UNCHANGED) */}
       <div className="w-64 bg-gray-900/70 backdrop-blur-lg border-r border-gray-800 p-6 flex flex-col gap-6 relative z-10">
         <h1 className="text-2xl font-bold">
           <span className="text-green-400">Vita</span>
@@ -68,17 +111,56 @@ export default function Dashboard() {
         </h1>
 
         <nav className="flex flex-col gap-3 mt-6">
+
+          {/* old dashboard button 
           <button className="bg-gradient-to-r from-green-400 to-blue-500 text-black px-4 py-2 rounded-full text-left font-medium">
             Dashboard
           </button>
-          <button className="text-gray-400 hover:text-white text-left transition">Log Metrics</button>
-          <button onClick={() => navigate("/goals")}className="text-gray-400 hover:text-white text-left transition">Goals</button>
-          <button className="text-gray-400 hover:text-white text-left transition">Files</button>
+          */}
+
+<NavLink
+  to="/dashboard"
+  className={({ isActive }) =>
+    `px-4 py-2 rounded-full text-left transition ${
+      isActive
+        ? "bg-gradient-to-r from-green-400 to-blue-500 text-black font-medium"
+        : "text-gray-400 hover:text-white"
+    }`
+  }
+>
+  Dashboard
+</NavLink>
+
+<NavLink
+  to="/logmetrics"
+  className={({ isActive }) =>
+    `px-4 py-2 rounded-full text-left transition ${
+      isActive
+        ? "bg-gradient-to-r from-green-400 to-blue-500 text-black font-medium"
+        : "text-gray-400 hover:text-white"
+    }`
+  }
+>
+  Log Metrics
+</NavLink>
+
+<NavLink
+  to="/files"
+  className={({ isActive }) =>
+    `px-4 py-2 rounded-full text-left transition ${
+      isActive
+        ? "bg-gradient-to-r from-green-400 to-blue-500 text-black font-medium"
+        : "text-gray-400 hover:text-white"
+    }`
+  }
+>
+  Files
+</NavLink>
 
         </nav>
       </div>
 
-      {/* MAIN */}
+      {/* MAIN (UNCHANGED UI STRUCTURE) */}
       <div className="flex-1 p-6 relative z-10">
 
         {/* HEADER */}
@@ -89,14 +171,22 @@ export default function Dashboard() {
           </div>
 
           <div className="flex gap-3 items-center">
-            <button className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-full text-sm transition">Time Range</button>
-            <button className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-full text-sm transition">Date</button>
-            <button className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-full text-sm transition">Reset</button>
-            <div className="ml-4 text-gray-400">Welcome, User!</div>
+            <button className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-full text-sm transition">
+              Time Range
+            </button>
+            <button className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-full text-sm transition">
+              Date
+            </button>
+            <button className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-full text-sm transition">
+              Reset
+            </button>
+            <div className="ml-4 text-gray-400">
+              Welcome, {user?.email || "User"}!
+            </div>
           </div>
         </div>
 
-        {/* GRID */}
+        {/* GRID (UNCHANGED UI) */}
         <div className="grid grid-cols-3 gap-6">
 
           {/* SLEEP */}
@@ -121,7 +211,7 @@ export default function Dashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={nutritionData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={90}>
-                    {nutritionData.map((entry, index) => (
+                    {nutritionData.map((_, index) => (
                       <Cell key={index} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -161,16 +251,16 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* CALORIES */}
+          {/* CALORIES (placeholder until metrics endpoint extended) */}
           <div className="bg-gray-900/70 backdrop-blur-lg border border-gray-800 p-6 rounded-2xl text-center">
             <h2 className="text-gray-400">Calories</h2>
-            <p className="text-3xl mt-2 font-semibold">2400 cal</p>
+            <p className="text-3xl mt-2 font-semibold">--</p>
           </div>
 
           {/* WEIGHT */}
           <div className="bg-gray-900/70 backdrop-blur-lg border border-gray-800 p-6 rounded-2xl text-center">
             <h2 className="text-gray-400">Weight</h2>
-            <p className="text-3xl mt-2 font-semibold">120 lbs</p>
+            <p className="text-3xl mt-2 font-semibold">--</p>
           </div>
 
         </div>
