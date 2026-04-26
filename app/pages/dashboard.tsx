@@ -40,7 +40,7 @@ export default function Dashboard() {
     year: "numeric"
   });
 
-  // ✅ GET USER
+  //  GET USER
   useEffect(() => {
     const getUser = async () => {
       const { data } = await supabase.auth.getUser();
@@ -54,13 +54,13 @@ export default function Dashboard() {
     getUser();
   }, []);
 
-  // ✅ LOGOUT
+  //  LOGOUT
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/login");
   };
 
-  // ✅ FETCH DATA
+  //  FETCH DATA
   useEffect(() => {
     if (!user) return;
 
@@ -169,7 +169,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* THE MENU (Wrapped in a bridge div to prevent hover loss) */}
+            {/* THE MENU */}
             {menuOpen && (
               <div className="absolute right-0 pt-2 w-48 z-50">
                 <div className="bg-gray-900 border border-gray-800 rounded-xl shadow-2xl overflow-hidden">
@@ -253,8 +253,8 @@ export default function Dashboard() {
             </div>
           </div>
 
-        </div> {/* End Grid */}
-      </div> {/* End Main Content */}
-    </div> // End Root
+        </div> 
+      </div> 
+    </div> 
   );
 }
