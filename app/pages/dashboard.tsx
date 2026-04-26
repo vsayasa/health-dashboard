@@ -1,6 +1,6 @@
 import { supabase } from "../supabaseClient";
 import { useEffect, useState } from "react";
-import React from "react";
+
 import {
   LineChart,
   Line,
@@ -16,11 +16,9 @@ import {
   ScatterChart,
   Scatter
 } from "recharts";
-import { useNavigate } from "react-router";
-import { NavLink } from "react-router";
+import Navbar from "../components/ui/navbar"
 
 export default function Dashboard() {
-  const navigate = useNavigate();
 
   const [user, setUser] = useState<any>(null);
 
@@ -28,7 +26,26 @@ export default function Dashboard() {
   const [exerciseData, setExerciseData] = useState<any[]>([]);
   const [nutritionData, setNutritionData] = useState<any[]>([]);
   const [wellnessData, setWellnessData] = useState<any[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
 
+  // form here for "Time Range". 
+  const [form, setForm] = useState({
+    startDate: new Date().toISOString().split("T")[0],
+    endDate: new Date().toISOString().split("T")[0]
+  })
+  const handleChange = (e: any) => {
+    setForm({...form, [e.target.name]: e.target.value});
+  }
+  const handleSubmit = async (e: any) => {
+    
+    if (new Date(form.startDate) <= new Date(form.endDate)) {
+    e.preventDefault();
+    setIsOpen(false);
+    }
+    else {
+      alert("Start Date needs to be before End Date!");
+    }
+  }
   const COLORS = ["#4ade80", "#60a5fa", "#facc15"];
 
   // 1. Get logged in user
@@ -43,9 +60,9 @@ export default function Dashboard() {
   // 2. Fetch metrics from backend
   useEffect(() => {
     if (!user) return;
-
+    
     const fetchMetrics = async () => {
-      const res = await fetch(`/api/metrics?user_id=${user.id}`);
+      const res = await fetch(`/api/metrics?user_id=${user.id}&start_date=${form.startDate}&end_date=${form.endDate}`);
       const data = await res.json();
 
       // Transform backend data → chart format
@@ -94,29 +111,24 @@ export default function Dashboard() {
     };
 
     fetchMetrics();
-  }, [user]);
+  }, [user, form.startDate, form.endDate]);
 
   return (
+    
     <div className="flex min-h-screen bg-black text-white relative overflow-hidden">
-
+      <Navbar />
       {/* Background glow */}
       <div className="absolute w-[400px] h-[400px] bg-green-500/20 blur-3xl rounded-full top-20 left-10"></div>
       <div className="absolute w-[400px] h-[400px] bg-blue-500/20 blur-3xl rounded-full bottom-10 right-10"></div>
 
       {/* SIDEBAR (UNCHANGED) */}
-      <div className="w-64 bg-gray-900/70 backdrop-blur-lg border-r border-gray-800 p-6 flex flex-col gap-6 relative z-10">
+      {/* <div className="w-64 bg-gray-900/70 backdrop-blur-lg border-r border-gray-800 p-6 flex flex-col gap-6 relative z-10">
         <h1 className="text-2xl font-bold">
           <span className="text-green-400">Vita</span>
           <span className="text-blue-400">Metrics</span>
         </h1>
 
         <nav className="flex flex-col gap-3 mt-6">
-
-          {/* old dashboard button 
-          <button className="bg-gradient-to-r from-green-400 to-blue-500 text-black px-4 py-2 rounded-full text-left font-medium">
-            Dashboard
-          </button>
-          */}
 
 <NavLink
   to="/dashboard"
@@ -158,7 +170,7 @@ export default function Dashboard() {
 </NavLink>
 
         </nav>
-      </div>
+      </div> */}
 
       {/* MAIN (UNCHANGED UI STRUCTURE) */}
       <div className="flex-1 p-6 relative z-10">
@@ -167,13 +179,62 @@ export default function Dashboard() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-semibold">Health Overview</h1>
-            <p className="text-gray-400">March 28, 2026</p>
+            <p className="text-gray-400">{form.startDate} to {form.endDate}</p>
           </div>
 
           <div className="flex gap-3 items-center">
-            <button className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-full text-sm transition">
+            <button onClick= {() => setIsOpen(true)} className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-full text-sm transition">
               Time Range
             </button>
+            {isOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-xl w-80">
+            <h3 className="text-white font-semibold mb-4">Select Range</h3>
+            
+            <div className="space-y-4">
+              {/* Start Date */}
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Start Date</label>
+                <input 
+                  type="date" 
+                  name="startDate"
+                  value={form.startDate}
+                  className="w-full bg-gray-800 text-white border border-gray-600 rounded-lg p-2 focus:outline-none focus:border-blue-500"
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* End Date */}
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">End Date</label>
+                <input 
+                  type="date" 
+                  name="endDate"
+                  value={form.endDate}
+                  className="w-full bg-gray-800 text-white border border-gray-600 rounded-lg p-2 focus:outline-none focus:border-blue-500"
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-end gap-3 mt-6">
+              <button 
+                onClick={() => setIsOpen(false)}
+                className="text-gray-400 hover:text-white text-sm"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleSubmit}
+                className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-lg text-sm transition"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
             <button className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-full text-sm transition">
               Date
             </button>

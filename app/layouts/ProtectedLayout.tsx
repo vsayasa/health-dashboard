@@ -48,7 +48,6 @@ export default function ProtectedLayout() {
 
         return (
     <div className="protected-layout">
-      <Navbar />
       <Outlet />
     </div>
   );
