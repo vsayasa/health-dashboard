@@ -18,11 +18,11 @@ import {
 } from "recharts";
 import { useNavigate } from "react-router";
 import { NavLink } from "react-router";
-
+import Navbar from "../components/ui/navbar";
 export default function Dashboard() {
 
   const [user, setUser] = useState<any>(null);
-
+  const [dbUser, setDBUser ] = useState<any>(null);
   const [sleepData, setSleepData] = useState<any[]>([]);
   const [exerciseData, setExerciseData] = useState<any[]>([]);
   const [nutritionData, setNutritionData] = useState<any[]>([]);
@@ -40,6 +40,17 @@ export default function Dashboard() {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (new Date(form.startDate) <= new Date(form.endDate)) {
+      await fetch("api/users",  {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json'}, 
+        body:JSON.stringify ({
+          id: user.id,
+          email: user.email,
+          created_at: dbUser.created_at,
+          startDate: form.startDate,
+          endDate: form.endDate
+        })
+      });
     setIsOpen(false);
     }
     else {
@@ -53,9 +64,10 @@ export default function Dashboard() {
     const getUser = async () => {
       const { data } = await supabase.auth.getUser();
       setUser(data.user);
-      const result = await fetch(`/api/users/${data.user.id}`);
+      const result = await fetch(`/api/users/${data.user!.id}`);
       const userData = await result.json();
       console.log(userData);
+      setDBUser(userData);
       if (userData && userData.startDate && userData.endDate) {
       setForm({
         startDate: userData.startDate,
