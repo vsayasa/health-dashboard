@@ -1,11 +1,6 @@
-let supabase: any = null
+import { createClient } from '@supabase/supabase-js';
 
-if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
-  const { createClient } = await import('@supabase/supabase-js')
-  supabase = createClient(
+export const supabase = createClient(
     import.meta.env.VITE_SUPABASE_URL,
-    import.meta.env.VITE_SUPABASE_ANON_KEY
-  )
-}
-
-export default supabase
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+)
