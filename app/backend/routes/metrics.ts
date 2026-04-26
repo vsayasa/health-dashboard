@@ -14,9 +14,8 @@ router.post("/", async (req, res) => {
     if (!body.user_id || !body.date) {
       return res.status(400).json({ error: "Missing required fields" });
     }
-
-    const id = `${body.user_id}_${body.date}`;
-
+    
+    const id = `${body.user_id}_${body.date}`
     const document = {
       id,
       user_id: body.user_id,
@@ -41,11 +40,11 @@ router.post("/", async (req, res) => {
  * Query by user + optional date range
  */
 router.get("/", async (req, res) => {
-  try {
-    const { user_id, start_date, end_date } = req.query;
-
-    let query = "SELECT * FROM c WHERE c.user_id = @user_id";
-    const params: any[] = [
+  
+      try {
+      const { user_id, start_date, end_date } = req.query;
+      let query = "SELECT * FROM c WHERE c.user_id = @user_id";
+      const params: any[] = [
       { name: "@user_id", value: user_id }
     ];
 
@@ -57,15 +56,14 @@ router.get("/", async (req, res) => {
       );
     }
 
-    const results = await queryItems("Metrics", {
-      query,
-      parameters: params
+    const results = await queryItems("Metrics", { 
+      query, 
+      parameters: params 
     });
 
     res.json(results);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
-  }
+    }
 });
-
 export default router;

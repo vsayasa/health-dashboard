@@ -19,13 +19,10 @@ export default function ProtectedLayout() {
     else {
       
       // Check if they exist in db:
-      console.log(data.user);
-      const doTheyExist = await fetch(`/api/users/${data.user.email}`);
+      const doTheyExist = await fetch(`/api/users/${data.user.id}`);
       const response = await doTheyExist.json();
-      if (response) {
-      console.log(response);
-      }
-      else {
+      if (!response) {
+
       console.log("they aint here chief");
 
       // Here put code to create user
@@ -33,7 +30,11 @@ export default function ProtectedLayout() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            id: data.user.email
+            id: data.user.id,
+            email: data.user.email,
+            created_at: new Date().toISOString(),
+            startDate: new Date().toISOString().split("T")[0],
+            endDate: new Date().toISOString().split("T")[0]
         })
     });
       }

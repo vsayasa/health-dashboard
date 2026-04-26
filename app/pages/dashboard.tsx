@@ -30,16 +30,15 @@ export default function Dashboard() {
 
   // form here for "Time Range". 
   const [form, setForm] = useState({
-    startDate: new Date().toISOString().split("T")[0],
-    endDate: new Date().toISOString().split("T")[0]
+    startDate: "",
+    endDate: ""
   })
   const handleChange = (e: any) => {
     setForm({...form, [e.target.name]: e.target.value});
   }
   const handleSubmit = async (e: any) => {
-    
-    if (new Date(form.startDate) <= new Date(form.endDate)) {
     e.preventDefault();
+    if (new Date(form.startDate) <= new Date(form.endDate)) {
     setIsOpen(false);
     }
     else {
@@ -53,6 +52,21 @@ export default function Dashboard() {
     const getUser = async () => {
       const { data } = await supabase.auth.getUser();
       setUser(data.user);
+      const result = await fetch(`/api/users/${data.user.id}`);
+      const userData = await result.json();
+      console.log(userData);
+      if (userData && userData.startDate && userData.endDate) {
+      setForm({
+        startDate: userData.startDate,
+        endDate: userData.endDate
+      });
+    }
+    else {
+      setForm({
+        startDate: new Date().toISOString().split("T")[0],
+        endDate: new Date().toISOString().split("T")[0]
+      })
+    }
     };
     getUser();
   }, []);
@@ -62,7 +76,9 @@ export default function Dashboard() {
     if (!user) return;
     
     const fetchMetrics = async () => {
-      const res = await fetch(`/api/metrics?user_id=${user.id}&start_date=${form.startDate}&end_date=${form.endDate}`);
+      const res = await fetch(`/api/metrics/?user_id=${user.id}&start_date=${form.startDate}&end_date=${form.endDate}`);
+
+      
       const data = await res.json();
 
       // Transform backend data → chart format
@@ -121,56 +137,6 @@ export default function Dashboard() {
       <div className="absolute w-[400px] h-[400px] bg-green-500/20 blur-3xl rounded-full top-20 left-10"></div>
       <div className="absolute w-[400px] h-[400px] bg-blue-500/20 blur-3xl rounded-full bottom-10 right-10"></div>
 
-      {/* SIDEBAR (UNCHANGED) */}
-      {/* <div className="w-64 bg-gray-900/70 backdrop-blur-lg border-r border-gray-800 p-6 flex flex-col gap-6 relative z-10">
-        <h1 className="text-2xl font-bold">
-          <span className="text-green-400">Vita</span>
-          <span className="text-blue-400">Metrics</span>
-        </h1>
-
-        <nav className="flex flex-col gap-3 mt-6">
-
-<NavLink
-  to="/dashboard"
-  className={({ isActive }) =>
-    `px-4 py-2 rounded-full text-left transition ${
-      isActive
-        ? "bg-gradient-to-r from-green-400 to-blue-500 text-black font-medium"
-        : "text-gray-400 hover:text-white"
-    }`
-  }
->
-  Dashboard
-</NavLink>
-
-<NavLink
-  to="/logmetrics"
-  className={({ isActive }) =>
-    `px-4 py-2 rounded-full text-left transition ${
-      isActive
-        ? "bg-gradient-to-r from-green-400 to-blue-500 text-black font-medium"
-        : "text-gray-400 hover:text-white"
-    }`
-  }
->
-  Log Metrics
-</NavLink>
-
-<NavLink
-  to="/files"
-  className={({ isActive }) =>
-    `px-4 py-2 rounded-full text-left transition ${
-      isActive
-        ? "bg-gradient-to-r from-green-400 to-blue-500 text-black font-medium"
-        : "text-gray-400 hover:text-white"
-    }`
-  }
->
-  Files
-</NavLink>
-
-        </nav>
-      </div> */}
 
       {/* MAIN (UNCHANGED UI STRUCTURE) */}
       <div className="flex-1 p-6 relative z-10">

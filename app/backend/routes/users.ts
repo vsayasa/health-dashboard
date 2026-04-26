@@ -9,13 +9,15 @@ const router = express.Router();
  */
 router.post("/", async (req, res) => {
   try {
-    const { id, username, email } = req.body;
+    const { id, email, created_at, startDate, endDate } = req.body;
 
     const user = {
       id, // partition key
-      username,
       email,
-      created_at: new Date().toISOString()
+      created_at,
+      startDate,
+      endDate
+
     };
 
     const result = await upsertItem("Users", user);
