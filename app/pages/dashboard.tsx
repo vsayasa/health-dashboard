@@ -16,7 +16,8 @@ import {
   ScatterChart,
   Scatter
 } from "recharts";
-import Navbar from "../components/ui/navbar"
+import { useNavigate } from "react-router";
+import { NavLink } from "react-router";
 
 export default function Dashboard() {
 
