@@ -232,7 +232,20 @@ export default function Dashboard() {
             )}
           </div>
         </div>
-
+{/* QUICK STATS ROW */}
+<div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
+{[
+{ label: "Total Sleep", value: `${totals.sleep}h`, color: "border-green-500/50" },
+{ label: "Avg Exercise", value: `${(totals.exercise / 7).toFixed(1)}h`, color: "border-blue-500/50" },
+{ label: "Protein Intake", value: `${totals.nutrition}g`, color: "border-yellow-500/50" },
+{ label: "Status", value: "Active", color: "border-purple-500/50" }
+].map((stat, i) => (
+<div key={i} className={`bg-gray-900/40 p-4 rounded-xl border-l-4 ${stat.color} backdrop-blur-sm`}>
+<p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">{stat.label}</p>
+<p className="text-2xl font-bold mt-1">{stat.value}</p>
+</div>
+))}
+</div>
         {/* GOALS SECTION */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
 
