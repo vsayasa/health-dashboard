@@ -31,6 +31,12 @@ export default function Dashboard() {
   const [nutritionData, setNutritionData] = useState<any[]>([]);
   const [wellnessData, setWellnessData] = useState<any[]>([]);
 
+  const [goals, setGoals] = useState<any>({
+    sleep: 0,
+    exercise: 0,
+    nutrition: 0
+  });
+
   const COLORS = ["#4ade80", "#60a5fa", "#facc15"];
 
   const currentDate = new Date().toLocaleDateString("en-US", {
@@ -40,7 +46,7 @@ export default function Dashboard() {
     year: "numeric"
   });
 
-  //  GET USER
+  // GET USER
   useEffect(() => {
     const getUser = async () => {
       const { data } = await supabase.auth.getUser();
@@ -54,13 +60,13 @@ export default function Dashboard() {
     getUser();
   }, []);
 
-  //  LOGOUT
+  // LOGOUT
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/login");
   };
 
-  //  FETCH DATA
+  // FETCH DATA
   useEffect(() => {
     if (!user) return;
 
@@ -74,6 +80,10 @@ export default function Dashboard() {
         const nutrition: any[] = [];
         const wellness: any[] = [];
 
+        let totalSleep = 0;
+        let totalExercise = 0;
+        let totalNutrition = 0;
+
         data.forEach((item: any) => {
           const day = new Date(item.date).toLocaleDateString("en-US", {
             weekday: "short",
@@ -81,17 +91,25 @@ export default function Dashboard() {
 
           if (item.sleep?.hours != null) {
             sleep.push({ day, hours: item.sleep.hours });
+            totalSleep += item.sleep.hours;
           }
+
           if (item.exercise?.hours != null) {
             exercise.push({ day, hours: item.exercise.hours });
+            totalExercise += item.exercise.hours;
           }
+
           if (item.nutrition) {
+            const protein = item.nutrition.protein || 0;
+            totalNutrition += protein;
+
             nutrition.push(
-              { name: "Protein", value: item.nutrition.protein || 0 },
+              { name: "Protein", value: protein },
               { name: "Carbs", value: item.nutrition.carbs || 0 },
               { name: "Fat", value: item.nutrition.fat || 0 }
             );
           }
+
           if (item.wellness) {
             wellness.push({
               sleep: item.sleep?.hours || 0,
@@ -100,10 +118,24 @@ export default function Dashboard() {
           }
         });
 
+        // SET DATA
         setSleepData(sleep);
         setExerciseData(exercise);
         setNutritionData(nutrition);
         setWellnessData(wellness);
+
+        // SET GOALS FROM API (assuming included once)
+        if (data[0]?.goals) {
+          setGoals(data[0].goals);
+        }
+
+        // STORE TOTALS
+        setTotals({
+          sleep: totalSleep,
+          exercise: totalExercise,
+          nutrition: totalNutrition
+        });
+
       } catch (error) {
         console.error("Error fetching metrics:", error);
       }
@@ -112,10 +144,34 @@ export default function Dashboard() {
     fetchMetrics();
   }, [user]);
 
+  const [totals, setTotals] = useState<any>({
+    sleep: 0,
+    exercise: 0,
+    nutrition: 0
+  });
+
+  // CALCULATIONS
+  const getPercent = (value: number, goal: number) => {
+    if (!goal) return 0;
+    return Math.min((value / goal) * 100, 100);
+  };
+
+  const overallPercent = Math.round(
+    (
+      getPercent(totals.sleep, goals.sleep) +
+      getPercent(totals.exercise, goals.exercise) +
+      getPercent(totals.nutrition, goals.nutrition)
+    ) / 3
+  );
+
+  const donutData = [
+    { name: "Completed", value: overallPercent },
+    { name: "Remaining", value: 100 - overallPercent }
+  ];
+
   return (
     <div className="flex min-h-screen bg-black text-white relative overflow-hidden">
       
-      {/* BACKGROUND DECOR */}
       <div className="absolute w-[400px] h-[400px] bg-green-500/10 blur-3xl rounded-full top-20 left-10"></div>
       <div className="absolute w-[400px] h-[400px] bg-blue-500/10 blur-3xl rounded-full bottom-10 right-10"></div>
 
@@ -128,133 +184,161 @@ export default function Dashboard() {
 
         <nav className="flex flex-col gap-3 mt-6">
           <NavLink to="/dashboard" className={({ isActive }) =>
-            `px-4 py-2 rounded-full transition-colors ${isActive ? "bg-gradient-to-r from-green-400 to-blue-500 text-black font-medium" : "text-gray-400 hover:text-white"}`
+            `px-4 py-2 rounded-full ${isActive ? "bg-gradient-to-r from-green-400 to-blue-500 text-black" : "text-gray-400 hover:text-white"}`
           }>
             Dashboard
           </NavLink>
           <NavLink to="/logmetrics" className={({ isActive }) =>
-            `px-4 py-2 rounded-full transition-colors ${isActive ? "bg-gradient-to-r from-green-400 to-blue-500 text-black font-medium" : "text-gray-400 hover:text-white"}`
+            `px-4 py-2 rounded-full ${isActive ? "bg-gradient-to-r from-green-400 to-blue-500 text-black" : "text-gray-400 hover:text-white"}`
           }>
             Log Metrics
           </NavLink>
           <NavLink to="/files" className={({ isActive }) =>
-            `px-4 py-2 rounded-full transition-colors ${isActive ? "bg-gradient-to-r from-green-400 to-blue-500 text-black font-medium" : "text-gray-400 hover:text-white"}`
+            `px-4 py-2 rounded-full ${isActive ? "bg-gradient-to-r from-green-400 to-blue-500 text-black" : "text-gray-400 hover:text-white"}`
           }>
             Files
           </NavLink>
         </nav>
       </div>
 
-      {/* MAIN PANEL */}
-      <div className="flex-1 p-8 relative z-10 overflow-y-auto">
-        
+      {/* MAIN */}
+      <div className="flex-1 p-8 overflow-y-auto">
+
         {/* HEADER */}
         <div className="flex justify-between items-center mb-10">
           <div>
             <h1 className="text-3xl font-semibold">Health Overview</h1>
-            <p className="text-gray-400 mt-1">{currentDate}</p>
+            <p className="text-gray-400">{currentDate}</p>
           </div>
 
-          {/* PROFILE DROPDOWN WRAPPER */}
           <div 
             className="relative"
             onMouseEnter={() => setMenuOpen(true)}
             onMouseLeave={() => setMenuOpen(false)}
           >
-            {/* TRIGGER */}
-            <div className="flex items-center gap-3 cursor-pointer group py-2">
-              <span className="text-gray-300 group-hover:text-white transition-colors">{firstName}</span>
-              <div className="w-10 h-10 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center group-hover:border-green-400 transition-all">
+            <div className="flex items-center gap-3 cursor-pointer">
+              <span>{firstName}</span>
+              <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center">
                 {firstName.charAt(0)}
               </div>
             </div>
 
-            {/* THE MENU */}
             {menuOpen && (
-              <div className="absolute right-0 pt-2 w-48 z-50">
-                <div className="bg-gray-900 border border-gray-800 rounded-xl shadow-2xl overflow-hidden">
-                  <button onClick={() => navigate("/profile")} className="w-full text-left px-4 py-3 hover:bg-gray-800 text-sm transition-colors border-b border-gray-800">
-                    Profile
-                  </button>
-                  <button onClick={() => navigate("/settings")} className="w-full text-left px-4 py-3 hover:bg-gray-800 text-sm transition-colors border-b border-gray-800">
-                    Settings
-                  </button>
-                  <button onClick={handleLogout} className="w-full text-left px-4 py-3 hover:bg-gray-800 text-sm text-red-400 transition-colors">
-                    Logout
-                  </button>
-                </div>
+              <div className="absolute right-0 mt-2 w-48 bg-gray-900 border border-gray-800 rounded-xl">
+                <button onClick={() => navigate("/profile")} className="block w-full text-left px-4 py-2 hover:bg-gray-800">Profile</button>
+                <button onClick={() => navigate("/settings")} className="block w-full text-left px-4 py-2 hover:bg-gray-800">Settings</button>
+                <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-red-400">Logout</button>
               </div>
             )}
           </div>
         </div>
 
-        {/* CHARTS GRID */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* GOALS SECTION */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
 
-          {/* SLEEP */}
-          <div className="lg:col-span-2 bg-gray-900/40 border border-gray-800 p-6 rounded-2xl backdrop-blur-sm">
-            <h2 className="text-gray-300 font-medium mb-4">Sleep Trends</h2>
-            <div className="w-full h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={sleepData}>
-                  <XAxis dataKey="day" stroke="#4b5563" fontSize={12} />
-                  <YAxis stroke="#4b5563" fontSize={12} />
-                  <Tooltip contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151' }} />
-                  <Line type="monotone" dataKey="hours" stroke="#4ade80" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+          {/* Progress Bars */}
+          <div className="lg:col-span-2 bg-gray-900/40 p-6 rounded-2xl border border-gray-800">
+            <h2 className="mb-4 text-gray-300">Weekly Goals</h2>
+
+            {["sleep", "exercise", "nutrition"].map((key: any) => {
+              const percent = getPercent(totals[key], goals[key]);
+
+              return (
+                <div key={key} className="mb-5">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="capitalize">{key}</span>
+                    <span>{totals[key]} / {goals[key]}</span>
+                  </div>
+
+                  <div className="w-full bg-gray-800 h-3 rounded-full">
+                    <div
+                      className="h-3 rounded-full bg-gradient-to-r from-green-400 to-blue-500"
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          {/* NUTRITION */}
-          <div className="bg-gray-900/40 border border-gray-800 p-6 rounded-2xl backdrop-blur-sm">
-            <h2 className="text-gray-300 font-medium mb-4">Nutrition</h2>
-            <div className="w-full h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
+          {/* Donut Chart */}
+          <div className="bg-gray-900/40 p-6 rounded-2xl border border-gray-800 flex flex-col items-center justify-center">
+            <h2 className="text-gray-300 mb-4">Goal Completion</h2>
+
+            <div className="w-full h-[200px]">
+              <ResponsiveContainer>
                 <PieChart>
-                  <Pie data={nutritionData} dataKey="value" innerRadius={60} outerRadius={80} paddingAngle={5}>
-                    {nutritionData.map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
+                  <Pie
+                    data={donutData}
+                    dataKey="value"
+                    innerRadius={60}
+                    outerRadius={80}
+                  >
+                    <Cell fill="#4ade80" />
+                    <Cell fill="#1f2937" />
                   </Pie>
-                  <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
             </div>
+
+            <p className="mt-4 text-xl font-semibold">{overallPercent}%</p>
+          </div>
+        </div>
+
+        {/* EXISTING CHARTS */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          <div className="lg:col-span-2 bg-gray-900/40 p-6 rounded-2xl border border-gray-800">
+            <h2 className="mb-4">Sleep Trends</h2>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={sleepData}>
+                <XAxis dataKey="day" />
+                <YAxis />
+                <Tooltip />
+                <Line dataKey="hours" stroke="#4ade80" />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
 
-          {/* EXERCISE */}
-          <div className="lg:col-span-2 bg-gray-900/40 border border-gray-800 p-6 rounded-2xl backdrop-blur-sm">
-            <h2 className="text-gray-300 font-medium mb-4">Exercise Activity</h2>
-            <div className="w-full h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={exerciseData}>
-                  <XAxis dataKey="day" stroke="#4b5563" fontSize={12} />
-                  <YAxis stroke="#4b5563" fontSize={12} />
-                  <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151' }} />
-                  <Bar dataKey="hours" fill="#60a5fa" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+          <div className="bg-gray-900/40 p-6 rounded-2xl border border-gray-800">
+            <h2 className="mb-4">Nutrition</h2>
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie data={nutritionData} dataKey="value" innerRadius={60}>
+                  {nutritionData.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
           </div>
 
-          {/* WELLNESS */}
-          <div className="bg-gray-900/40 border border-gray-800 p-6 rounded-2xl backdrop-blur-sm">
-            <h2 className="text-gray-300 font-medium mb-4">Wellness Correlation</h2>
-            <div className="w-full h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart>
-                  <XAxis type="number" dataKey="sleep" name="Sleep" stroke="#4b5563" fontSize={12} />
-                  <YAxis type="number" dataKey="mood" name="Mood" stroke="#4b5563" fontSize={12} />
-                  <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                  <Scatter data={wellnessData} fill="#a78bfa" />
-                </ScatterChart>
-              </ResponsiveContainer>
-            </div>
+          <div className="lg:col-span-2 bg-gray-900/40 p-6 rounded-2xl border border-gray-800">
+            <h2 className="mb-4">Exercise</h2>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={exerciseData}>
+                <XAxis dataKey="day" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="hours" fill="#60a5fa" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
 
-        </div> 
-      </div> 
-    </div> 
+          <div className="bg-gray-900/40 p-6 rounded-2xl border border-gray-800">
+            <h2 className="mb-4">Wellness</h2>
+            <ResponsiveContainer width="100%" height={250}>
+              <ScatterChart>
+                <XAxis dataKey="sleep" />
+                <YAxis dataKey="mood" />
+                <Tooltip />
+                <Scatter data={wellnessData} fill="#a78bfa" />
+              </ScatterChart>
+            </ResponsiveContainer>
+          </div>
+
+        </div>
+      </div>
+    </div>
   );
 }
