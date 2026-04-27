@@ -54,13 +54,13 @@ export default function Dashboard() {
     getUser();
   }, []);
 
-  // LOGOUT
+  //  LOGOUT
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/login");
   };
 
-  // FETCH DATA
+  //  FETCH DATA
   useEffect(() => {
     if (!user) return;
 
