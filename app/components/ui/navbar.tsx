@@ -23,8 +23,8 @@ export default function Navbar() {
   return(
       <div className="w-64 bg-gray-900/70 backdrop-blur-lg border-r border-gray-800 p-6 flex flex-col gap-6 relative z-10">
         <h1 className="text-2xl font-bold">
-          <span className="text-green-400">Vita</span>
-          <span className="text-blue-400">Metrics</span>
+          <span className="lime-300">Vita</span>
+          <span className="sky-400">Metrics</span>
         </h1>
 
         <nav className="flex flex-col gap-3 mt-6">
@@ -34,7 +34,7 @@ export default function Navbar() {
   className={({ isActive }) =>
     `px-4 py-2 rounded-full text-left transition ${
       isActive
-        ? "bg-gradient-to-r from-green-400 to-blue-500 text-black font-medium"
+        ? "bg-gradient-to-r from-lime-300 to-sky-400 text-black font-medium"
         : "text-gray-400 hover:text-white"
     }`
   }
@@ -47,7 +47,7 @@ export default function Navbar() {
   className={({ isActive }) =>
     `px-4 py-2 rounded-full text-left transition ${
       isActive
-        ? "bg-gradient-to-r from-green-400 to-blue-500 text-black font-medium"
+        ? "bg-gradient-to-r from-lime-300 to-sky-400 text-black font-medium"
         : "text-gray-400 hover:text-white"
     }`
   }
@@ -60,7 +60,7 @@ export default function Navbar() {
   className={({ isActive }) =>
     `px-4 py-2 rounded-full text-left transition ${
       isActive
-        ? "bg-gradient-to-r from-green-400 to-blue-500 text-black font-medium"
+        ? "bg-gradient-to-r from-lime-300 to-sky-400 text-black font-medium"
         : "text-gray-400 hover:text-white"
     }`
   }

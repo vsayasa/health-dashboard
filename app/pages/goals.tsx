@@ -21,8 +21,8 @@ export default function Goals() {
     <div className="min-h-screen bg-black text-white p-6">
 
       <h1 className="text-3xl font-semibold mb-6">
-        <span className="text-green-400">Wellness</span>{" "}
-        <span className="text-blue-400">Goals</span>
+        <span className="text-lime-400">Wellness</span>{" "}
+        <span className="text-sky-400">Goals</span>
       </h1>
 
       {/* Add Goal */}
@@ -39,7 +39,7 @@ export default function Goals() {
 
           <button
             onClick={addGoal}
-            className="bg-gradient-to-r from-green-400 to-blue-500 text-black px-4 py-2 rounded-lg font-medium"
+            className="bg-gradient-to-r from-lime-400 to-sky-500 text-black px-4 py-2 rounded-lg font-medium"
           >
             Add
           </button>
