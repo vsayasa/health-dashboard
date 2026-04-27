@@ -1,6 +1,8 @@
+
+
 import React, { useState } from "react";
 import { supabase } from "../supabaseClient";
-import { useNavigate, Link } from "react-router";
+import { useNavigate } from "react-router";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -25,10 +27,8 @@ export default function Login() {
       setErrorMsg(error.message);
       return;
     }
-    else {
-    console.log("works");
-      navigate("/dashboard");
-    }
+
+    navigate("/dashboard");
   };
 
   return (
@@ -97,9 +97,9 @@ export default function Login() {
         {/* Footer */}
         <p className="text-center text-gray-500 text-sm mt-6">
           Don’t have an account?{" "}
-          <Link to="/register" className="text-blue-400 cursor-pointer hover:underline">
+          <span className="text-blue-400 cursor-pointer hover:underline">
             Sign up
-          </Link>
+          </span>
         </p>
       </div>
     </div>
