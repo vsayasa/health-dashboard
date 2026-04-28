@@ -178,9 +178,9 @@ export default function LogMetrics() {
       </div>
 
       {/* MAIN */}
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-9">
         {/* HEADER */}
-        <div className="flex justify-between items-center mb-6 pb-4">
+        <div className="flex justify-between items-center mb-2 pb-2">
           <div>
             <h1 className="text-2xl font-semibold">Log Metrics</h1>
             <p className="text-gray-400 text-xs">{currentDate}</p>

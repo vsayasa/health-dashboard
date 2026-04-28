@@ -1,28 +1,121 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
+import multer from "multer";
+import {
+  BlobServiceClient,
+  StorageSharedKeyCredential,
+  generateBlobSASQueryParameters,
+  BlobSASPermissions,
+} from "@azure/storage-blob";
 import { upsertItem, queryItems } from "../services/cosmosService";
 
 const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
+
+const connectionString = process.env.BLOB_STORAGE_CONNECTION_STRING!;
+const mealsContainerName = process.env.BLOB_STORAGE_CONTAINER_MEALS || "meal-images";
+const reportsContainerName = process.env.BLOB_STORAGE_CONTAINER_REPORTS || "report-docs";
+
+const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+
+const getContainerClient = (fileType: string) => {
+  if (fileType === "meal") {
+    return blobServiceClient.getContainerClient(mealsContainerName);
+  }
+
+  if (fileType === "report") {
+    return blobServiceClient.getContainerClient(reportsContainerName);
+  }
+
+  throw new Error("Invalid file_type. Must be 'meal' or 'report'.");
+};
+
+const getSharedKeyCredential = () => {
+  const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME!;
+  const accountKey = process.env.AZURE_STORAGE_ACCOUNT_KEY!;
+
+  return new StorageSharedKeyCredential(accountName, accountKey);
+};
+
+const generateSasUrl = (containerName: string, blobName: string) => {
+  const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME!;
+  const sharedKeyCredential = getSharedKeyCredential();
+
+  const sasToken = generateBlobSASQueryParameters(
+    {
+      containerName,
+      blobName,
+      permissions: BlobSASPermissions.parse("r"),
+      startsOn: new Date(Date.now() - 5 * 60 * 1000),
+      expiresOn: new Date(Date.now() + 60 * 60 * 1000),
+    },
+    sharedKeyCredential
+  ).toString();
+
+  return `https://${accountName}.blob.core.windows.net/${containerName}/${blobName}?${sasToken}`;
+};
 
 /**
- * POST /api/files
- * Save file metadata
+ * POST /api/files/upload
  */
-router.post("/", async (req, res) => {
-  try {
-    const data = req.body;
+router.post("/upload", upload.single("file"), async (req, res) => {
+  console.log("UPLOAD ROUTE HIT");
+  console.log("body:", req.body);
+  console.log("file:", req.file?.originalname);
+  console.log("blob env exists:", {
+    hasConnectionString: !!process.env.BLOB_STORAGE_CONNECTION_STRING,
+    hasAccountName: !!process.env.AZURE_STORAGE_ACCOUNT_NAME,
+    hasAccountKey: !!process.env.AZURE_STORAGE_ACCOUNT_KEY,
+    mealsContainer: process.env.BLOB_STORAGE_CONTAINER_MEALS,
+    reportsContainer: process.env.BLOB_STORAGE_CONTAINER_REPORTS,
+  });
 
-    const file = {
-      id: data.id || `${data.user_id}_${Date.now()}`,
-      user_id: data.user_id,
-      date: data.date,
-      file_url: data.file_url,
-      file_type: data.file_type // "meal" or "report"
+  try {
+    const { user_id, date, file_type } = req.body;
+
+    if (!req.file || !user_id || !date || !file_type) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const containerClient = getContainerClient(file_type);
+    await containerClient.createIfNotExists();
+
+    const safeName = req.file.originalname.replace(/\s+/g, "_");
+    const blobName = `${user_id}/${Date.now()}_${safeName}`;
+
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+    await blockBlobClient.uploadData(req.file.buffer, {
+      blobHTTPHeaders: {
+        blobContentType: req.file.mimetype,
+      },
+    });
+
+    const containerName =
+      file_type === "meal" ? mealsContainerName : reportsContainerName;
+
+    const fileDoc = {
+      id: `${user_id}_${Date.now()}`,
+      user_id,
+      date,
+      file_type,
+      file_name: req.file.originalname,
+      content_type: req.file.mimetype,
+      container_name: containerName,
+      blob_name: blobName,
+      created_at: new Date().toISOString(),
     };
 
-    const result = await upsertItem("Files", file);
+    const result = await upsertItem("Files", fileDoc);
 
-    res.json(result);
+    res.json({
+      ...result,
+      file_url: generateSasUrl(containerName, blobName),
+    });
   } catch (err: any) {
+    console.error("File upload error:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -34,15 +127,26 @@ router.get("/", async (req, res) => {
   try {
     const { user_id } = req.query;
 
+    if (!user_id) {
+      return res.status(400).json({ error: "Missing user_id" });
+    }
+
     const query = {
-      query: "SELECT * FROM c WHERE c.user_id = @user_id",
-      parameters: [{ name: "@user_id", value: user_id }]
+      query:
+        "SELECT * FROM c WHERE c.user_id = @user_id ORDER BY c.created_at DESC",
+      parameters: [{ name: "@user_id", value: user_id }],
     };
 
     const results = await queryItems("Files", query);
 
-    res.json(results);
+    const filesWithSasUrls = results.map((file: any) => ({
+      ...file,
+      file_url: generateSasUrl(file.container_name, file.blob_name),
+    }));
+
+    res.json(filesWithSasUrls);
   } catch (err: any) {
+    console.error("File fetch error:", err);
     res.status(500).json({ error: err.message });
   }
 });

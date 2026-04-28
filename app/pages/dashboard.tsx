@@ -223,8 +223,8 @@ export default function Dashboard() {
         </nav>
       </div>
 
-      <div className="flex-1 p-6">
-        <div className="flex justify-between items-center mb-6 pb-4">
+      <div className="flex-1 p-9">
+        <div className="flex justify-between items-center mb-2 pb-2">
           <div>
             <h1 className="text-2xl font-semibold">Health Overview</h1>
             <p className="text-gray-400 text-xs">{currentDate}</p>
@@ -295,8 +295,8 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 bg-gray-900 p-4 rounded">
-            <div className="flex justify-between mb-2">
-              <h2>Sleep Trends</h2>
+            <div className="flex justify-between mb-3 font-semibold">
+              <h2>Sleep</h2>
               <select
                 onChange={(e) => setSleepMetric(e.target.value)}
                 className="bg-gray-800 px-2 rounded text-xs"
@@ -332,7 +332,7 @@ export default function Dashboard() {
           </div>
 
           <div className="bg-gray-900 p-4 rounded">
-            <h2 className="mb-2">Nutrition</h2>
+            <h2 className="mb-3 font-semibold">Nutrition</h2>
 
             <ResponsiveContainer width="100%" height={230}>
               <PieChart>
@@ -365,7 +365,7 @@ export default function Dashboard() {
           </div>
 
           <div className="lg:col-span-2 bg-gray-900 p-4 rounded">
-            <div className="flex justify-between mb-2">
+            <div className="flex justify-between mb-3 font-semibold">
               <h2>Exercise</h2>
               <select
                 onChange={(e) => setExerciseType(e.target.value)}
@@ -404,7 +404,7 @@ export default function Dashboard() {
           </div>
 
           <div className="bg-gray-900 p-4 rounded">
-            <div className="flex gap-2 mb-2">
+            <div className="flex gap-2 mb-3 font-semibold">
               <h2 className="mr-2">Wellness</h2>
               <select onChange={(e)=>setWellnessX(e.target.value)} className="bg-gray-800 px-2 text-xs">
                 <option value="sleep">Sleep</option>

@@ -20,11 +20,16 @@ app.get("/", (req, res) => {
   res.send("CosmosDB is implemented. API is running 🚀");
 });
 
+app.get("/api/files/test", (req, res) => {
+  res.json({ message: "Files route is connected" });
+});
+
 // Routes
 app.use("/api/metrics", metricsRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/goals", goalsRoutes);
 app.use("/api/files", filesRoutes);
+
 
 app.listen(3001, () => {
   console.log("API running on http://localhost:3001");
