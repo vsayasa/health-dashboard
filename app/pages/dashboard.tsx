@@ -2,22 +2,12 @@ import { supabase } from "../supabaseClient";
 import { useEffect, useState } from "react";
 import React from "react";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  BarChart,
-  Bar,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  ScatterChart,
-  Scatter
+  LineChart, Line, XAxis, YAxis, Tooltip,
+  BarChart, Bar, ResponsiveContainer,
+  PieChart, Pie, Cell,
+  ScatterChart, Scatter
 } from "recharts";
-import { useNavigate } from "react-router";
-import { NavLink } from "react-router";
+import { useNavigate, NavLink } from "react-router";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -31,7 +21,16 @@ export default function Dashboard() {
   const [nutritionData, setNutritionData] = useState<any[]>([]);
   const [wellnessData, setWellnessData] = useState<any[]>([]);
 
-  const COLORS = ["#4ade80", "#60a5fa", "#facc15"];
+  const [range, setRange] = useState("7");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const [sleepMetric, setSleepMetric] = useState("hours");
+  const [exerciseType, setExerciseType] = useState("all");
+  const [wellnessX, setWellnessX] = useState("sleep");
+  const [wellnessY, setWellnessY] = useState("mood");
+
+  const COLORS = ["#bfd06a", "#6aaed0", "#2f98bc"];
 
   const currentDate = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -40,7 +39,47 @@ export default function Dashboard() {
     year: "numeric"
   });
 
-  //  GET USER
+  const formatDate = (date: Date) => {
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return local.toISOString().split("T")[0];
+  };
+
+  const formatMMDD = (dateString: string) => {
+    const d = new Date(`${dateString}T00:00:00`);
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${month}/${day}`;
+  };
+
+  const buildDateRange = (start: string, end: string) => {
+    const dates: string[] = [];
+    const current = new Date(`${start}T00:00:00`);
+    const last = new Date(`${end}T00:00:00`);
+
+    while (current <= last) {
+      dates.push(formatDate(current));
+      current.setDate(current.getDate() + 1);
+    }
+
+    return dates;
+  };
+
+  useEffect(() => {
+    const today = new Date();
+
+    if (range === "7") {
+      const start = new Date();
+      start.setDate(today.getDate() - 6);
+      setStartDate(formatDate(start));
+      setEndDate(formatDate(today));
+    } else if (range === "30") {
+      const start = new Date();
+      start.setDate(today.getDate() - 29);
+      setStartDate(formatDate(start));
+      setEndDate(formatDate(today));
+    }
+  }, [range]);
+
   useEffect(() => {
     const getUser = async () => {
       const { data } = await supabase.auth.getUser();
@@ -54,207 +93,358 @@ export default function Dashboard() {
     getUser();
   }, []);
 
-  // LOGOUT
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/login");
   };
 
-  // FETCH DATA
   useEffect(() => {
-    if (!user) return;
+    if (!user || !startDate || !endDate) return;
 
     const fetchMetrics = async () => {
-      try {
-        const res = await fetch(`/api/metrics?user_id=${user.id}`);
-        const data = await res.json();
+      setSleepData([]);
+      setExerciseData([]);
+      setWellnessData([]);
+      setNutritionData([]);
 
-        const sleep: any[] = [];
-        const exercise: any[] = [];
-        const nutrition: any[] = [];
-        const wellness: any[] = [];
+      const query = `/api/metrics?user_id=${user.id}&start_date=${startDate}&end_date=${endDate}&_=${Date.now()}`;
 
-        data.forEach((item: any) => {
-          const day = new Date(item.date).toLocaleDateString("en-US", {
-            weekday: "short",
+      const res = await fetch(query);
+      const data = await res.json();
+
+      const latestByDate = new Map<string, any>();
+
+      data.forEach((item: any) => {
+        if (!item.date) return;
+        const normalizedDate = item.date.split("T")[0];
+
+        const existing = latestByDate.get(normalizedDate);
+        if (!existing || item._ts > existing._ts) {
+          latestByDate.set(normalizedDate, item);
+        }
+      });
+
+      const dateRange = buildDateRange(startDate, endDate);
+
+      let protein = 0;
+      let carbs = 0;
+      let fat = 0;
+
+      const sleep = dateRange.map((date) => {
+        const item = latestByDate.get(date);
+
+        return {
+          date,
+          label: formatMMDD(date),
+          hours: item?.sleep?.hours || 0,
+          quality: item?.sleep?.quality || 0
+        };
+      });
+
+      const exercise = dateRange.map((date) => {
+        const item = latestByDate.get(date);
+
+        const matchesExercise =
+          item?.exercise &&
+          (exerciseType === "all" || item.exercise.type === exerciseType);
+
+        return {
+          date,
+          label: formatMMDD(date),
+          hours: matchesExercise ? item.exercise.hours || 0 : 0,
+          type: item?.exercise?.type || ""
+        };
+      });
+
+      const wellness: any[] = [];
+
+      dateRange.forEach((date) => {
+        const item = latestByDate.get(date);
+
+        if (item?.nutrition) {
+          protein += item.nutrition.protein || 0;
+          carbs += item.nutrition.carbs || 0;
+          fat += item.nutrition.fat || 0;
+        }
+
+        if (item?.wellness) {
+          wellness.push({
+            date,
+            sleep: item.sleep?.hours || 0,
+            exercise: item.exercise?.hours || 0,
+            mood: item.wellness.mood || 0,
+            stress: item.wellness.stress || 0
           });
+        }
+      });
 
-          if (item.sleep?.hours != null) {
-            sleep.push({ day, hours: item.sleep.hours });
-          }
-          if (item.exercise?.hours != null) {
-            exercise.push({ day, hours: item.exercise.hours });
-          }
-          if (item.nutrition) {
-            nutrition.push(
-              { name: "Protein", value: item.nutrition.protein || 0 },
-              { name: "Carbs", value: item.nutrition.carbs || 0 },
-              { name: "Fat", value: item.nutrition.fat || 0 }
-            );
-          }
-          if (item.wellness) {
-            wellness.push({
-              sleep: item.sleep?.hours || 0,
-              mood: item.wellness.mood || 0,
-            });
-          }
-        });
+      setSleepData(sleep);
+      setExerciseData(exercise);
+      setWellnessData(wellness);
 
-        setSleepData(sleep);
-        setExerciseData(exercise);
-        setNutritionData(nutrition);
-        setWellnessData(wellness);
-      } catch (error) {
-        console.error("Error fetching metrics:", error);
-      }
+      setNutritionData([
+        { name: "Protein", value: protein },
+        { name: "Carbs", value: carbs },
+        { name: "Fat", value: fat }
+      ]);
     };
 
     fetchMetrics();
-  }, [user]);
+  }, [user, range, startDate, endDate, exerciseType]);
 
   return (
-    <div className="flex min-h-screen bg-black text-white relative overflow-hidden">
-      
-      {/* BACKGROUND DECOR */}
-      <div className="absolute w-[400px] h-[400px] bg-green-500/10 blur-3xl rounded-full top-20 left-10"></div>
-      <div className="absolute w-[400px] h-[400px] bg-blue-500/10 blur-3xl rounded-full bottom-10 right-10"></div>
-
-      {/* SIDEBAR */}
-      <div className="w-64 bg-gray-900/70 backdrop-blur-lg border-r border-gray-800 p-6 flex flex-col gap-6 relative z-20">
-        <h1 className="text-2xl font-bold">
-          <span className="text-green-400">Vita</span>
-          <span className="text-blue-400">Metrics</span>
+    <div className="flex min-h-screen bg-black text-white text-sm">
+      <div className="w-60 bg-gray-900/70 border-r border-gray-800 p-5 flex flex-col gap-5">
+        <h1 className="text-xl font-bold">
+          <span className="text-lime-200">Vita</span>
+          <span className="text-sky-300">Metrics</span>
         </h1>
 
-        <nav className="flex flex-col gap-3 mt-6">
-          <NavLink to="/dashboard" className={({ isActive }) =>
-            `px-4 py-2 rounded-full transition-colors ${isActive ? "bg-gradient-to-r from-green-400 to-blue-500 text-black font-medium" : "text-gray-400 hover:text-white"}`
-          }>
-            Dashboard
-          </NavLink>
-          <NavLink to="/logmetrics" className={({ isActive }) =>
-            `px-4 py-2 rounded-full transition-colors ${isActive ? "bg-gradient-to-r from-green-400 to-blue-500 text-black font-medium" : "text-gray-400 hover:text-white"}`
-          }>
-            Log Metrics
-          </NavLink>
-          <NavLink to="/files" className={({ isActive }) =>
-            `px-4 py-2 rounded-full transition-colors ${isActive ? "bg-gradient-to-r from-green-400 to-blue-500 text-black font-medium" : "text-gray-400 hover:text-white"}`
-          }>
-            Files
-          </NavLink>
+        <nav className="flex flex-col gap-2 mt-4">
+          {["dashboard", "logmetrics", "files"].map((path) => (
+            <NavLink
+              key={path}
+              to={`/${path}`}
+              className={({ isActive }) =>
+                `px-4 py-2 rounded-full ${
+                  isActive
+                    ? "bg-gray-300 text-black font-semibold"
+                    : "text-gray-400 hover:text-white font-semibold"
+                }`
+              }
+            >
+              {path === "dashboard"
+                ? "Dashboard"
+                : path === "logmetrics"
+                ? "Log Metrics"
+                : "Files"}
+            </NavLink>
+          ))}
         </nav>
       </div>
 
-      {/* MAIN PANEL */}
-      <div className="flex-1 p-8 relative z-10 overflow-y-auto">
-        
-        {/* HEADER */}
-        <div className="flex justify-between items-center mb-10">
+      <div className="flex-1 p-9">
+        <div className="flex justify-between items-center mb-2 pb-2">
           <div>
             <h1 className="text-3xl font-semibold">Health Overview</h1>
-            <p className="text-gray-400 mt-1">{currentDate}</p>
+            <p className="text-gray-400 text-s mt-1">{currentDate}</p>
           </div>
 
-          {/* PROFILE DROPDOWN WRAPPER */}
-          <div 
-            className="relative"
-            onMouseEnter={() => setMenuOpen(true)}
-            onMouseLeave={() => setMenuOpen(false)}
-          >
-            {/* TRIGGER */}
-            <div className="flex items-center gap-3 cursor-pointer group py-2">
-              <span className="text-gray-300 group-hover:text-white transition-colors">{firstName}</span>
-              <div className="w-10 h-10 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center group-hover:border-green-400 transition-all">
-                {firstName.charAt(0)}
-              </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-s">
+              <select
+                value={range}
+                onChange={(e) => setRange(e.target.value)}
+                className="bg-gray-800 px-2 py-1 rounded"
+              >
+                <option value="7">Last 7 Days</option>
+                <option value="30">Last 30 Days</option>
+                <option value="custom">Custom</option>
+              </select>
+
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  setRange("custom");
+                }}
+                className="bg-gray-800 px-2 py-1 rounded"
+              />
+
+              <span>-</span>
+
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  setRange("custom");
+                }}
+                className="bg-gray-800 px-2 py-1 rounded"
+              />
             </div>
 
-            {/* THE MENU */}
-            {menuOpen && (
-              <div className="absolute right-0 pt-2 w-48 z-50">
-                <div className="bg-gray-900 border border-gray-800 rounded-xl shadow-2xl overflow-hidden">
-                  <button onClick={() => navigate("/profile")} className="w-full text-left px-4 py-3 hover:bg-gray-800 text-sm transition-colors border-b border-gray-800">
-                    Profile
-                  </button>
-                  <button onClick={() => navigate("/settings")} className="w-full text-left px-4 py-3 hover:bg-gray-800 text-sm transition-colors border-b border-gray-800">
-                    Settings
-                  </button>
-                  <button onClick={handleLogout} className="w-full text-left px-4 py-3 hover:bg-gray-800 text-sm text-red-400 transition-colors">
-                    Logout
-                  </button>
+            <div
+              className="relative z-50"
+              onMouseEnter={() => setMenuOpen(true)}
+              onMouseLeave={() => setMenuOpen(false)}
+            >
+              <div className="flex items-center gap-2 cursor-pointer">
+                <span>{firstName}</span>
+                <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+                  {firstName[0]}
                 </div>
               </div>
-            )}
+
+              {menuOpen && (
+                <div className="absolute right-0 top-full pt-1 w-40 z-50">
+                  <div className="bg-gray-900 border rounded">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full p-2 text-left text-red-400 hover:bg-gray-800 cursor-pointer"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* CHARTS GRID */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-          {/* SLEEP */}
-          <div className="lg:col-span-2 bg-gray-900/40 border border-gray-800 p-6 rounded-2xl backdrop-blur-sm">
-            <h2 className="text-gray-300 font-medium mb-4">Sleep Trends</h2>
-            <div className="w-full h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={sleepData}>
-                  <XAxis dataKey="day" stroke="#4b5563" fontSize={12} />
-                  <YAxis stroke="#4b5563" fontSize={12} />
-                  <Tooltip contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151' }} />
-                  <Line type="monotone" dataKey="hours" stroke="#4ade80" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 bg-gray-900 p-4 rounded">
+            <div className="flex justify-between mb-3 font-semibold">
+              <h2>Sleep</h2>
+              <select
+                onChange={(e) => setSleepMetric(e.target.value)}
+                className="bg-gray-800 px-2 rounded text-s"
+              >
+                <option value="hours">Hours</option>
+                <option value="quality">Quality</option>
+              </select>
             </div>
+
+            <ResponsiveContainer width="100%" height={230}>
+              <LineChart data={sleepData} margin={{ top: 20, right: 20, left: 10, bottom: 20 }}>
+                <XAxis
+                  dataKey="label"
+                  interval={range === "30" ? 4 : 0}
+                  label={{ value: "Date", position: "insideBottom", offset: -10 }}
+                />
+                <YAxis
+                  label={{
+                    value: sleepMetric === "hours" ? "Hours" : "Quality",
+                    angle: -90,
+                    position: "insideLeft"
+                  }}
+                />
+                <Tooltip
+                  formatter={(value: any, name: any, props: any) => [
+                    value,
+                    `${formatMMDD(props.payload.date)} (${name})`
+                  ]}
+                />
+                <Line dataKey={sleepMetric} stroke="#bfd06a" />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
 
-          {/* NUTRITION */}
-          <div className="bg-gray-900/40 border border-gray-800 p-6 rounded-2xl backdrop-blur-sm">
-            <h2 className="text-gray-300 font-medium mb-4">Nutrition</h2>
-            <div className="w-full h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={nutritionData} dataKey="value" innerRadius={60} outerRadius={80} paddingAngle={5}>
-                    {nutritionData.map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+          <div className="bg-gray-900 p-4 rounded">
+            <h2 className="mb-3 font-semibold">Nutrition</h2>
+
+            <ResponsiveContainer width="100%" height={230}>
+              <PieChart>
+                <Pie
+                  data={nutritionData}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={45}
+                  outerRadius={75}
+                  labelLine={true}
+                  label={({ cx, cy, midAngle, outerRadius, name, value }) => {
+                    const RADIAN = Math.PI / 180;
+                    const x = cx + (outerRadius + 25) * Math.cos(-midAngle * RADIAN);
+                    const y = cy + (outerRadius + 25) * Math.sin(-midAngle * RADIAN);
+
+                    return (
+                      <text x={x} y={y} textAnchor={x > cx ? "start" : "end"} fill="#8f8f8f" fontSize={12}>
+                        <tspan x={x} dy="0">{name}</tspan>
+                        <tspan x={x} dy="14">{value}</tspan>
+                      </text>
+                    );
+                  }}
+                >
+                  {nutritionData.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
           </div>
 
-          {/* EXERCISE */}
-          <div className="lg:col-span-2 bg-gray-900/40 border border-gray-800 p-6 rounded-2xl backdrop-blur-sm">
-            <h2 className="text-gray-300 font-medium mb-4">Exercise Activity</h2>
-            <div className="w-full h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={exerciseData}>
-                  <XAxis dataKey="day" stroke="#4b5563" fontSize={12} />
-                  <YAxis stroke="#4b5563" fontSize={12} />
-                  <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151' }} />
-                  <Bar dataKey="hours" fill="#60a5fa" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+          <div className="lg:col-span-2 bg-gray-900 p-4 rounded">
+            <div className="flex justify-between mb-3 font-semibold">
+              <h2>Exercise</h2>
+              <select
+                onChange={(e) => setExerciseType(e.target.value)}
+                className="bg-gray-800 px-2 rounded text-s"
+              >
+                <option value="all">All</option>
+                <option value="cardio">Cardio</option>
+                <option value="strength">Strength</option>
+              </select>
             </div>
+
+            <ResponsiveContainer width="100%" height={230}>
+              <BarChart data={exerciseData} margin={{ top: 10, right: 20, left: 10, bottom: 25 }}>
+                <XAxis
+                  dataKey="label"
+                  interval={range === "30" ? 4 : 0}
+                  label={{ value: "Date", position: "insideBottom", offset: -10 }}
+                />
+                <YAxis
+                  label={{
+                    value: "Hours",
+                    angle: -90,
+                    position: "insideLeft"
+                  }}
+                />
+                <Tooltip
+                  cursor={false}
+                  formatter={(value: any, name: any, props: any) => [
+                    value,
+                    `${formatMMDD(props.payload.date)} (${name})`
+                  ]}
+                />
+                <Bar dataKey="hours" fill="#6aaed0" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
 
-          {/* WELLNESS */}
-          <div className="bg-gray-900/40 border border-gray-800 p-6 rounded-2xl backdrop-blur-sm">
-            <h2 className="text-gray-300 font-medium mb-4">Wellness Correlation</h2>
-            <div className="w-full h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart>
-                  <XAxis type="number" dataKey="sleep" name="Sleep" stroke="#4b5563" fontSize={12} />
-                  <YAxis type="number" dataKey="mood" name="Mood" stroke="#4b5563" fontSize={12} />
-                  <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                  <Scatter data={wellnessData} fill="#a78bfa" />
-                </ScatterChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+          <div className="bg-gray-900 p-4 rounded">
+            <div className="flex gap-2 mb-3 font-semibold">
+              <h2 className="mr-2">Wellness</h2>
+              <select onChange={(e)=>setWellnessX(e.target.value)} className="bg-gray-800 px-2 text-s">
+                <option value="sleep">Sleep</option>
+                <option value="exercise">Exercise</option>
+              </select>
 
-        </div> 
-      </div> 
-    </div> 
+              <select onChange={(e)=>setWellnessY(e.target.value)} className="bg-gray-800 px-2 text-s">
+                <option value="mood">Mood</option>
+                <option value="stress">Stress</option>
+              </select>
+            </div>
+
+            <ResponsiveContainer width="100%" height={230}>
+              <ScatterChart margin={{ top: 10, right: 20, left: 10, bottom: 25 }}>
+                <XAxis
+                  type="number"
+                  dataKey={wellnessX}
+                  label={{ value: wellnessX, position: "insideBottom", offset: -10 }}
+                />
+                <YAxis
+                  type="number"
+                  dataKey={wellnessY}
+                  label={{
+                    value: wellnessY,
+                    angle: -90,
+                    position: "insideLeft"
+                  }}
+                />
+                <Tooltip
+                  formatter={(value: any, name: any, props: any) => [
+                    value,
+                    `${name} (${formatMMDD(props.payload.date)})`
+                  ]}
+                />
+                <Scatter data={wellnessData} fill="#2f98bc" />
+              </ScatterChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -6,14 +6,14 @@ export function Welcome() {
 
       {/* Background glow */}
       <div className="absolute w-[400px] h-[400px] bg-green-500/20 blur-3xl rounded-full top-20 left-10"></div>
-      <div className="absolute w-[400px] h-[400px] bg-blue-500/20 blur-3xl rounded-full bottom-10 right-10"></div>
+      <div className="absolute w-[400px] h-[400px] bg-sky-400/20 blur-3xl rounded-full bottom-10 right-10"></div>
 
       <div className="relative z-10 w-full max-w-4xl flex flex-col items-center text-center gap-10">
 
         {/* Logo / Title */}
         <h1 className="text-5xl font-bold">
-          <span className="text-green-400">Vita</span>
-          <span className="text-blue-400">Metrics</span>
+          <span className="text-lime-200">Vita</span>
+          <span className="text-blue-300">Metrics</span>
         </h1>
 
         <p className="text-gray-400 max-w-xl">
@@ -32,7 +32,7 @@ export function Welcome() {
 
             <Link
               to="/login"
-              className="w-full bg-gradient-to-r from-green-400 to-blue-500 text-black font-semibold py-2 rounded-lg transition hover:opacity-90"
+              className="w-full bg-gradient-to-r from-lime-300 to-sky-400 text-black font-semibold py-2 rounded-lg transition hover:opacity-90"
             >
               Login
             </Link>

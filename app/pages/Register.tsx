@@ -47,15 +47,15 @@ export default function Register() {
       
       {/* Background glow */}
       <div className="absolute w-[400px] h-[400px] bg-green-500/20 blur-3xl rounded-full top-20 left-10"></div>
-      <div className="absolute w-[400px] h-[400px] bg-blue-500/20 blur-3xl rounded-full bottom-10 right-10"></div>
+      <div className="absolute w-[400px] h-[400px] bg-sky-400/20 blur-3xl rounded-full bottom-10 right-10"></div>
 
       {/* Card */}
       <div className="relative w-full max-w-md bg-gray-900/80 backdrop-blur-lg p-8 rounded-2xl shadow-2xl border border-gray-800">
 
         {/* Logo */}
         <h1 className="text-3xl font-bold text-center mb-2">
-          <span className="text-green-400">Vita</span>
-          <span className="text-blue-400">Metrics</span>
+          <span className="text-lime-200">Vita</span>
+          <span className="text-sky-300">Metrics</span>
         </h1>
 
         <p className="text-center text-gray-400 mb-6">
@@ -87,7 +87,7 @@ export default function Register() {
                     : "Please enter a valid email address."
                 );
               }}
-              className="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+              className="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400 text-white"
               required
             />
             {emailError && (
@@ -110,7 +110,7 @@ export default function Register() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-green-400 to-blue-500 hover:opacity-90 text-black font-semibold py-2 rounded-lg transition disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-lime-300 to-sky-400 hover:opacity-90 text-black font-semibold py-2 rounded-lg transition disabled:opacity-50"
           >
             {isLoading ? "Registering..." : "Create Account"}
           </button>
@@ -119,7 +119,7 @@ export default function Register() {
             Already have an account?{" "}
             <Link
               to="/login"
-              className="text-blue-400 hover:underline"
+              className="text-sky-400 hover:underline"
             >
               Login here
             </Link>
