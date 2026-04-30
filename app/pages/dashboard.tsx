@@ -208,8 +208,8 @@ export default function Dashboard() {
               className={({ isActive }) =>
                 `px-4 py-2 rounded-full ${
                   isActive
-                    ? "bg-gradient-to-r from-lime-300 to-sky-400 text-black"
-                    : "text-gray-400 hover:text-white"
+                    ? "bg-gray-300 text-black font-semibold"
+                    : "text-gray-400 hover:text-white font-semibold"
                 }`
               }
             >
@@ -226,12 +226,12 @@ export default function Dashboard() {
       <div className="flex-1 p-9">
         <div className="flex justify-between items-center mb-2 pb-2">
           <div>
-            <h1 className="text-2xl font-semibold">Health Overview</h1>
-            <p className="text-gray-400 text-xs">{currentDate}</p>
+            <h1 className="text-3xl font-semibold">Health Overview</h1>
+            <p className="text-gray-400 text-s mt-1">{currentDate}</p>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-2 text-s">
               <select
                 value={range}
                 onChange={(e) => setRange(e.target.value)}
@@ -299,7 +299,7 @@ export default function Dashboard() {
               <h2>Sleep</h2>
               <select
                 onChange={(e) => setSleepMetric(e.target.value)}
-                className="bg-gray-800 px-2 rounded text-xs"
+                className="bg-gray-800 px-2 rounded text-s"
               >
                 <option value="hours">Hours</option>
                 <option value="quality">Quality</option>
@@ -307,7 +307,7 @@ export default function Dashboard() {
             </div>
 
             <ResponsiveContainer width="100%" height={230}>
-              <LineChart data={sleepData} margin={{ top: 10, right: 20, left: 10, bottom: 25 }}>
+              <LineChart data={sleepData} margin={{ top: 20, right: 20, left: 10, bottom: 20 }}>
                 <XAxis
                   dataKey="label"
                   interval={range === "30" ? 4 : 0}
@@ -369,7 +369,7 @@ export default function Dashboard() {
               <h2>Exercise</h2>
               <select
                 onChange={(e) => setExerciseType(e.target.value)}
-                className="bg-gray-800 px-2 rounded text-xs"
+                className="bg-gray-800 px-2 rounded text-s"
               >
                 <option value="all">All</option>
                 <option value="cardio">Cardio</option>
@@ -406,12 +406,12 @@ export default function Dashboard() {
           <div className="bg-gray-900 p-4 rounded">
             <div className="flex gap-2 mb-3 font-semibold">
               <h2 className="mr-2">Wellness</h2>
-              <select onChange={(e)=>setWellnessX(e.target.value)} className="bg-gray-800 px-2 text-xs">
+              <select onChange={(e)=>setWellnessX(e.target.value)} className="bg-gray-800 px-2 text-s">
                 <option value="sleep">Sleep</option>
                 <option value="exercise">Exercise</option>
               </select>
 
-              <select onChange={(e)=>setWellnessY(e.target.value)} className="bg-gray-800 px-2 text-xs">
+              <select onChange={(e)=>setWellnessY(e.target.value)} className="bg-gray-800 px-2 text-s">
                 <option value="mood">Mood</option>
                 <option value="stress">Stress</option>
               </select>

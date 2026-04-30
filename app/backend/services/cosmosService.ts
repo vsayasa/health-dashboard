@@ -15,3 +15,8 @@ export const queryItems = async (containerName: string, querySpec: any) => {
   const { resources } = await container.items.query(querySpec).fetchAll();
   return resources;
 };
+
+export const deleteItem = async (containerName: string, id: string, partitionKey: string) => {
+  const container = getContainer(containerName);
+  await container.item(id, partitionKey).delete();
+};

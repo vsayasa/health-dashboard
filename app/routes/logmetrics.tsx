@@ -162,8 +162,8 @@ export default function LogMetrics() {
               className={({ isActive }) =>
                 `px-4 py-2 rounded-full ${
                   isActive
-                    ? "bg-gradient-to-r from-lime-300 to-sky-400 text-black"
-                    : "text-gray-400 hover:text-white"
+                    ? "bg-gray-300 text-black font-semibold"
+                    : "text-gray-400 hover:text-white font-semibold"
                 }`
               }
             >
@@ -182,8 +182,8 @@ export default function LogMetrics() {
         {/* HEADER */}
         <div className="flex justify-between items-center mb-2 pb-2">
           <div>
-            <h1 className="text-2xl font-semibold">Log Metrics</h1>
-            <p className="text-gray-400 text-xs">{currentDate}</p>
+            <h1 className="text-3xl font-semibold">Log Daily Health Metrics</h1>
+            <p className="text-gray-400 text-s mt-1">{currentDate}</p>
           </div>
 
           {/* PROFILE */}
@@ -247,39 +247,6 @@ export default function LogMetrics() {
               />
             </div>
 
-            {/* EXERCISE */}
-            <div className="bg-gray-900 p-4 rounded">
-              <h2 className="mb-3 font-semibold">Exercise</h2>
-
-              <select
-                name="exerciseType"
-                value={form.exerciseType}
-                onChange={handleChange}
-                className="w-full p-2 bg-gray-800 rounded mb-2 text-sm"
-              >
-                <option value="cardio">Cardio</option>
-                <option value="strength">Strength</option>
-              </select>
-
-              <input
-                name="exerciseHours"
-                placeholder="Hours"
-                value={form.exerciseHours}
-                onChange={handleChange}
-                className="w-full p-2 bg-gray-800 rounded text-sm"
-              />
-            </div>
-
-            {/* WELLNESS */}
-            <div className="bg-gray-900 p-4 rounded">
-              <h2 className="mb-3 font-semibold">Wellness</h2>
-
-              <div className="space-y-5">
-                <ScaleSlider label="Mood" name="mood" value={form.mood} />
-                <ScaleSlider label="Stress" name="stress" value={form.stress} />
-              </div>
-            </div>
-
             {/* NUTRITION */}
             <div className="bg-gray-900 p-4 rounded">
               <h2 className="mb-3 font-semibold">Nutrition</h2>
@@ -316,13 +283,46 @@ export default function LogMetrics() {
                 className="w-full p-2 bg-gray-800 rounded text-sm"
               />
             </div>
+
+            {/* EXERCISE */}
+            <div className="bg-gray-900 p-4 rounded">
+              <h2 className="mb-3 font-semibold">Exercise</h2>
+
+              <select
+                name="exerciseType"
+                value={form.exerciseType}
+                onChange={handleChange}
+                className="w-full p-2 bg-gray-800 rounded mb-2 text-sm"
+              >
+                <option value="cardio">Cardio</option>
+                <option value="strength">Strength</option>
+              </select>
+
+              <input
+                name="exerciseHours"
+                placeholder="Hours"
+                value={form.exerciseHours}
+                onChange={handleChange}
+                className="w-full p-2 bg-gray-800 rounded text-sm"
+              />
+            </div>
+
+            {/* WELLNESS */}
+            <div className="bg-gray-900 p-4 rounded">
+              <h2 className="mb-3 font-semibold">Wellness</h2>
+
+              <div className="space-y-5">
+                <ScaleSlider label="Mood" name="mood" value={form.mood} />
+                <ScaleSlider label="Stress" name="stress" value={form.stress} />
+              </div>
+            </div>
           </div>
 
           {/* SUBMIT */}
           <div className="mt-5 flex justify-end">
             <button
               disabled={loading}
-              className="bg-gradient-to-r from-lime-300 to-sky-400 text-black px-6 py-2 rounded font-semibold disabled:opacity-50"
+              className="bg-[#6aaed0] hover:bg-[#5a9cc0] text-black px-6 py-2 rounded font-semibold"
             >
               {loading ? "Saving..." : "Submit"}
             </button>

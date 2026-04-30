@@ -32,9 +32,9 @@ export default function Navbar() {
 <NavLink
   to="/dashboard"
   className={({ isActive }) =>
-    `px-4 py-2 rounded-full text-left transition ${
+    `px-4 py-2 rounded-full ${
       isActive
-        ? "bg-gradient-to-r from-lime-300 to-sky-400 text-black font-medium"
+        ? "bg-white text-black"
         : "text-gray-400 hover:text-white"
     }`
   }

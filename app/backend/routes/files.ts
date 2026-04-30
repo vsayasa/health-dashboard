@@ -9,7 +9,7 @@ import {
   generateBlobSASQueryParameters,
   BlobSASPermissions,
 } from "@azure/storage-blob";
-import { upsertItem, queryItems } from "../services/cosmosService";
+import { upsertItem, queryItems, deleteItem } from "../services/cosmosService";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -73,7 +73,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
   });
 
   try {
-    const { user_id, date, file_type } = req.body;
+    const { user_id, date, file_type } = req.body || {};
 
     if (!req.file || !user_id || !date || !file_type) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -147,6 +147,41 @@ router.get("/", async (req, res) => {
     res.json(filesWithSasUrls);
   } catch (err: any) {
     console.error("File fetch error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * DELETE /api/files/:id
+ * Delete file from Blob Storage + delete metadata from Cosmos DB
+ */
+router.delete("/:id", async (req, res) => {
+  try {
+    console.log("DELETE ROUTE HIT");
+    console.log("params:", req.params);
+    console.log("body:", req.body);
+
+    const { id } = req.params;
+    const { user_id, container_name, blob_name } = req.body || {};
+
+    if (!id || !user_id || !container_name || !blob_name) {
+      return res.status(400).json({
+        error: "Missing required fields",
+        received: { id, user_id, container_name, blob_name },
+      });
+    }
+
+    const containerClient = blobServiceClient.getContainerClient(container_name);
+    const blockBlobClient = containerClient.getBlockBlobClient(blob_name);
+
+    await blockBlobClient.deleteIfExists();
+
+    // Most likely partition key is /user_id
+    await deleteItem("Files", id, user_id);
+
+    res.json({ message: "File deleted successfully" });
+  } catch (err: any) {
+    console.error("File delete error:", err);
     res.status(500).json({ error: err.message });
   }
 });

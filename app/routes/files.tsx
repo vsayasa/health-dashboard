@@ -14,6 +14,7 @@ export default function Files() {
 
   const [imageUploading, setImageUploading] = useState(false);
   const [fileUploading, setFileUploading] = useState(false);
+  const [deletingId, setDeletingId] = useState("");
 
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
 
@@ -80,17 +81,45 @@ export default function Files() {
     if (fileType === "report") setFileUploading(false);
 
     if (res.ok) {
-        await fetchFiles();
-        } else {
-        const errorText = await res.text();
-        console.error("Upload failed:", errorText);
-        alert(`Upload failed: ${errorText}`);
-        }
+      await fetchFiles();
+    } else {
+      const errorText = await res.text();
+      console.error("Upload failed:", errorText);
+      alert(`Upload failed: ${errorText}`);
+    }
+  };
+
+  const deleteFile = async (file: any) => {
+    const confirmDelete = window.confirm(`Delete ${file.file_name}?`);
+    if (!confirmDelete) return;
+
+    setDeletingId(file.id);
+
+    const res = await fetch(`/api/files/${file.id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: file.user_id,
+        container_name: file.container_name,
+        blob_name: file.blob_name,
+      }),
+    });
+
+    setDeletingId("");
+
+    if (res.ok) {
+      await fetchFiles();
+    } else {
+      const errorText = await res.text();
+      console.error("Delete failed:", errorText);
+      alert(`Delete failed: ${errorText}`);
+    }
   };
 
   return (
     <div className="flex min-h-screen bg-black text-white text-sm">
-      {/* SIDEBAR */}
       <div className="w-60 bg-gray-900/70 border-r border-gray-800 p-5 flex flex-col gap-5">
         <h1 className="text-xl font-bold">
           <span className="text-lime-200">Vita</span>
@@ -102,13 +131,13 @@ export default function Files() {
             <NavLink
               key={path}
               to={`/${path}`}
-              className={({ isActive }) =>
+                className={({ isActive }) =>
                 `px-4 py-2 rounded-full ${
-                  isActive
-                    ? "bg-gradient-to-r from-lime-300 to-sky-400 text-black"
-                    : "text-gray-400 hover:text-white"
+                    isActive
+                    ? "bg-gray-300 text-black font-semibold"
+                    : "text-gray-400 hover:text-white font-semibold"
                 }`
-              }
+                }
             >
               {path === "dashboard"
                 ? "Dashboard"
@@ -120,16 +149,13 @@ export default function Files() {
         </nav>
       </div>
 
-      {/* MAIN */}
       <div className="flex-1 p-9">
-        {/* HEADER */}
         <div className="flex justify-between items-center mb-2 pb-2">
           <div>
-            <h1 className="text-2xl font-semibold">Files</h1>
-            <p className="text-gray-400 text-xs">{currentDate}</p>
+            <h1 className="text-3xl font-semibold">Health Library</h1>
+            <p className="text-gray-400 text-s mt-1">{currentDate}</p>
           </div>
 
-          {/* PROFILE */}
           <div
             className="relative z-50"
             onMouseEnter={() => setMenuOpen(true)}
@@ -157,7 +183,6 @@ export default function Files() {
           </div>
         </div>
 
-        {/* DATE PICKER */}
         <div className="mb-4 flex items-center gap-2 text-xs">
           <label className="text-gray-400">Date</label>
           <input
@@ -168,14 +193,12 @@ export default function Files() {
           />
         </div>
 
-        {/* TWO COLUMNS */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* IMAGE UPLOAD */}
           <div className="bg-gray-900 p-4 rounded">
             <div className="flex justify-between items-center mb-4">
               <h2 className="font-semibold">Meal Gallery</h2>
 
-              <label className="bg-gradient-to-r from-lime-300 to-sky-400 text-black px-4 py-2 rounded font-semibold cursor-pointer">
+              <label className="bg-[#6aaed0] hover:bg-[#5a9cc0] text-black px-4 py-2 rounded font-semibold cursor-pointer">
                 {imageUploading ? "Uploading..." : "Upload Image"}
                 <input
                   type="file"
@@ -210,6 +233,14 @@ export default function Files() {
                         <p className="text-[10px] text-gray-500">
                           {file.date}
                         </p>
+
+                        <button
+                          onClick={() => deleteFile(file)}
+                          disabled={deletingId === file.id}
+                          className="mt-2 text-[10px] text-red-400 hover:text-red-300 disabled:opacity-50"
+                        >
+                          {deletingId === file.id ? "Deleting..." : "Delete"}
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -218,12 +249,11 @@ export default function Files() {
             </div>
           </div>
 
-          {/* FILE UPLOAD */}
           <div className="bg-gray-900 p-4 rounded">
             <div className="flex justify-between items-center mb-4">
               <h2 className="font-semibold">Health Reports</h2>
 
-              <label className="bg-gradient-to-r from-lime-300 to-sky-400 text-black px-4 py-2 rounded font-semibold cursor-pointer">
+              <label className="bg-[#6aaed0] hover:bg-[#5a9cc0] text-black px-4 py-2 rounded font-semibold cursor-pointer">
                 {fileUploading ? "Uploading..." : "Upload File"}
                 <input
                   type="file"
@@ -243,19 +273,30 @@ export default function Files() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {reportFiles.map((file) => (
-                    <a
+                    <div
                       key={file.id}
-                      href={file.file_url}
-                      target="_blank"
-                      rel="noreferrer"
                       className="bg-gray-800 rounded p-3 hover:bg-gray-700 transition"
                     >
-                      <p className="text-sm truncate">{file.file_name}</p>
-                      <p className="text-xs text-gray-500">{file.date}</p>
-                      <p className="text-[10px] text-sky-300 mt-2">
-                        Open file →
-                      </p>
-                    </a>
+                      <a
+                        href={file.file_url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <p className="text-sm truncate">{file.file_name}</p>
+                        <p className="text-xs text-gray-500">{file.date}</p>
+                        <p className="text-[10px] text-sky-300 mt-2">
+                          Open file →
+                        </p>
+                      </a>
+
+                      <button
+                        onClick={() => deleteFile(file)}
+                        disabled={deletingId === file.id}
+                        className="mt-2 text-[10px] text-red-400 hover:text-red-300 disabled:opacity-50"
+                      >
+                        {deletingId === file.id ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
                   ))}
                 </div>
               )}
