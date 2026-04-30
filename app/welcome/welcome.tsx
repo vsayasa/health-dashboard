@@ -25,14 +25,14 @@ export function Welcome() {
 
             <Link
               to="/login"
-              className="w-full bg-[#bfd06a] text-black font-semibold py-2 rounded-lg transition hover:opacity-80"
+              className="w-full bg-[#bfd06a] text-black font-semibold py-2 rounded-full transition hover:opacity-80"
             >
               Login
             </Link>
 
             <Link
               to="/register"
-              className="w-full bg-sky-300 text-black font-semibold py-2 rounded-lg transition hover:opacity-80"
+              className="w-full bg-[#6aaed0] text-black font-semibold py-2 rounded-full transition hover:opacity-80"
             >
               Signup
             </Link>

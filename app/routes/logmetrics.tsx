@@ -204,7 +204,7 @@ export default function LogMetrics() {
 
             {menuOpen && (
               <div className="absolute right-0 top-full pt-1 w-40 z-50">
-                <div className="bg-gray-900 border rounded">
+                <div className="bg-gray-900 border rounded-2xl">
                   <button
                     onClick={handleLogout}
                     className="w-full p-2 text-left text-red-400 hover:bg-gray-800 cursor-pointer"
@@ -219,20 +219,20 @@ export default function LogMetrics() {
 
         <form onSubmit={handleSubmit}>
           {/* DATE PICKER */}
-          <div className="mb-4 flex items-center gap-2 text-xs">
+          <div className="mb-4 flex items-center gap-2 text-s">
             <label className="text-gray-400">Date</label>
             <input
               type="date"
               name="date"
               value={form.date}
               onChange={handleChange}
-              className="bg-gray-800 px-2 py-1 rounded text-xs w-36"
+              className="bg-gray-800 px-2 py-1 rounded-2xl text-s w-36"
             />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* SLEEP */}
-            <div className="bg-gray-900 p-4 rounded">
+            <div className="bg-gray-900 p-4 rounded-2xl">
               <h2 className="mb-3 font-semibold">Sleep</h2>
 
               <input
@@ -240,7 +240,7 @@ export default function LogMetrics() {
                 placeholder="Hours"
                 value={form.sleepHours}
                 onChange={handleChange}
-                className="w-full p-2 bg-gray-800 rounded mb-4 text-sm"
+                className="w-full p-2 bg-gray-800 rounded-2xl mb-4 text-sm"
               />
 
               <ScaleSlider
@@ -251,7 +251,7 @@ export default function LogMetrics() {
             </div>
 
             {/* NUTRITION */}
-            <div className="bg-gray-900 p-4 rounded">
+            <div className="bg-gray-900 p-4 rounded-2xl">
               <h2 className="mb-3 font-semibold">Nutrition</h2>
 
               <input
@@ -259,7 +259,7 @@ export default function LogMetrics() {
                 placeholder="Calories"
                 value={form.calories}
                 onChange={handleChange}
-                className="w-full p-2 bg-gray-800 rounded mb-2 text-sm"
+                className="w-full p-2 bg-gray-800 rounded-2xl mb-2 text-sm"
               />
 
               <input
@@ -267,7 +267,7 @@ export default function LogMetrics() {
                 placeholder="Protein"
                 value={form.protein}
                 onChange={handleChange}
-                className="w-full p-2 bg-gray-800 rounded mb-2 text-sm"
+                className="w-full p-2 bg-gray-800 rounded-2xl mb-2 text-sm"
               />
 
               <input
@@ -275,7 +275,7 @@ export default function LogMetrics() {
                 placeholder="Carbs"
                 value={form.carbs}
                 onChange={handleChange}
-                className="w-full p-2 bg-gray-800 rounded mb-2 text-sm"
+                className="w-full p-2 bg-gray-800 rounded-2xl mb-2 text-sm"
               />
 
               <input
@@ -283,19 +283,19 @@ export default function LogMetrics() {
                 placeholder="Fat"
                 value={form.fat}
                 onChange={handleChange}
-                className="w-full p-2 bg-gray-800 rounded text-sm"
+                className="w-full p-2 bg-gray-800 rounded-2xl text-sm"
               />
             </div>
 
             {/* EXERCISE */}
-            <div className="bg-gray-900 p-4 rounded">
+            <div className="bg-gray-900 p-4 rounded-2xl">
               <h2 className="mb-3 font-semibold">Exercise</h2>
 
               <select
                 name="exerciseType"
                 value={form.exerciseType}
                 onChange={handleChange}
-                className="w-full p-2 bg-gray-800 rounded mb-2 text-sm"
+                className="w-full p-2 bg-gray-800 rounded-2xl mb-2 text-sm"
               >
                 <option value="cardio">Cardio</option>
                 <option value="strength">Strength</option>
@@ -306,12 +306,12 @@ export default function LogMetrics() {
                 placeholder="Hours"
                 value={form.exerciseHours}
                 onChange={handleChange}
-                className="w-full p-2 bg-gray-800 rounded text-sm"
+                className="w-full p-2 bg-gray-800 rounded-2xl text-sm"
               />
             </div>
 
             {/* WELLNESS */}
-            <div className="bg-gray-900 p-4 rounded">
+            <div className="bg-gray-900 p-4 rounded-2xl">
               <h2 className="mb-3 font-semibold">Wellness</h2>
 
               <div className="space-y-5">
@@ -325,7 +325,7 @@ export default function LogMetrics() {
           <div className="mt-5 flex justify-end">
             <button
               disabled={loading}
-              className="bg-[#bfd06a] hover:opacity-80 text-black px-6 py-2 rounded font-semibold"
+              className="bg-[#bfd06a] hover:opacity-80 text-black px-6 py-2 rounded-full font-semibold"
             >
               {loading ? "Saving..." : "Submit"}
             </button>

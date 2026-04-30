@@ -238,7 +238,7 @@ export default function Dashboard() {
               <select
                 value={range}
                 onChange={(e) => setRange(e.target.value)}
-                className="bg-gray-800 px-2 py-1 rounded"
+                className="bg-gray-800 px-2 py-1 rounded-2xl"
               >
                 <option value="7">Last 7 Days</option>
                 <option value="30">Last 30 Days</option>
@@ -252,7 +252,7 @@ export default function Dashboard() {
                   setStartDate(e.target.value);
                   setRange("custom");
                 }}
-                className="bg-gray-800 px-2 py-1 rounded"
+                className="bg-gray-800 px-2 py-1 rounded-2xl"
               />
 
               <span>-</span>
@@ -264,7 +264,7 @@ export default function Dashboard() {
                   setEndDate(e.target.value);
                   setRange("custom");
                 }}
-                className="bg-gray-800 px-2 py-1 rounded"
+                className="bg-gray-800 px-2 py-1 rounded-2xl"
               />
             </div>
 
@@ -297,19 +297,19 @@ export default function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 bg-gray-900 p-4 rounded">
+          <div className="lg:col-span-2 bg-gray-900 p-4 rounded-2xl">
             <div className="flex justify-between mb-3 font-semibold">
               <h2>Sleep</h2>
               <select
                 onChange={(e) => setSleepMetric(e.target.value)}
-                className="bg-gray-800 px-2 rounded text-s"
+                className="bg-gray-800 px-2 py-1 rounded-2xl text-s"
               >
                 <option value="hours">Hours</option>
                 <option value="quality">Quality</option>
               </select>
             </div>
 
-            <ResponsiveContainer width="100%" height={230}>
+            <ResponsiveContainer width="100%" height={200}>
               <LineChart data={sleepData} margin={{ top: 20, right: 20, left: 10, bottom: 20 }}>
                 <XAxis
                   dataKey="label"
@@ -334,17 +334,17 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </div>
 
-          <div className="bg-gray-900 p-4 rounded">
+          <div className="bg-gray-900 p-4 rounded-2xl">
             <h2 className="mb-3 font-semibold">Nutrition</h2>
 
-            <ResponsiveContainer width="100%" height={230}>
+            <ResponsiveContainer width="100%" height={200}>
               <PieChart>
                 <Pie
                   data={nutritionData}
                   dataKey="value"
                   nameKey="name"
-                  innerRadius={45}
-                  outerRadius={75}
+                  innerRadius={40}
+                  outerRadius={60}
                   labelLine={true}
                   label={({ cx, cy, midAngle, outerRadius, name, value }) => {
                     const RADIAN = Math.PI / 180;
@@ -367,12 +367,12 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </div>
 
-          <div className="lg:col-span-2 bg-gray-900 p-4 rounded">
+          <div className="lg:col-span-2 bg-gray-900 p-4 rounded-2xl">
             <div className="flex justify-between mb-3 font-semibold">
               <h2>Exercise</h2>
               <select
                 onChange={(e) => setExerciseType(e.target.value)}
-                className="bg-gray-800 px-2 rounded text-s"
+                className="bg-gray-800 px-2 py-1 rounded-2xl text-s"
               >
                 <option value="all">All</option>
                 <option value="cardio">Cardio</option>
@@ -380,7 +380,7 @@ export default function Dashboard() {
               </select>
             </div>
 
-            <ResponsiveContainer width="100%" height={230}>
+            <ResponsiveContainer width="100%" height={200}>
               <BarChart data={exerciseData} margin={{ top: 10, right: 20, left: 10, bottom: 25 }}>
                 <XAxis
                   dataKey="label"
@@ -406,21 +406,21 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </div>
 
-          <div className="bg-gray-900 p-4 rounded">
+          <div className="bg-gray-900 p-4 rounded-2xl">
             <div className="flex gap-2 mb-3 font-semibold">
               <h2 className="mr-2">Wellness</h2>
-              <select onChange={(e)=>setWellnessX(e.target.value)} className="bg-gray-800 px-2 text-s">
+              <select onChange={(e)=>setWellnessX(e.target.value)} className="bg-gray-800 px-2 py-1 text-s rounded-2xl">
                 <option value="sleep">Sleep</option>
                 <option value="exercise">Exercise</option>
               </select>
 
-              <select onChange={(e)=>setWellnessY(e.target.value)} className="bg-gray-800 px-2 text-s">
+              <select onChange={(e)=>setWellnessY(e.target.value)} className="bg-gray-800 px-2 py-1 text-s rounded-2xl">
                 <option value="mood">Mood</option>
                 <option value="stress">Stress</option>
               </select>
             </div>
 
-            <ResponsiveContainer width="100%" height={230}>
+            <ResponsiveContainer width="100%" height={200}>
               <ScatterChart margin={{ top: 10, right: 20, left: 10, bottom: 25 }}>
                 <XAxis
                   type="number"

@@ -60,7 +60,7 @@ export default function Register() {
 
         {/* Error */}
         {errorMsg && (
-          <div className="bg-red-500/20 text-red-400 text-sm p-3 rounded-lg mb-4">
+          <div className="bg-red-500/20 text-red-400 text-sm p-3 rounded-full mb-4">
             {errorMsg}
           </div>
         )}
@@ -83,7 +83,7 @@ export default function Register() {
                     : "Please enter a valid email address."
                 );
               }}
-              className="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-300 text-white"
+              className="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-[#6aaed0] text-white"
               required
             />
             {emailError && (
@@ -98,7 +98,7 @@ export default function Register() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-300 text-white"
+              className="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-[#6aaed0] text-white"
               required
             />
           </div>
@@ -106,7 +106,7 @@ export default function Register() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-sky-300 hover:opacity-80 text-black font-semibold py-2 rounded-lg transition disabled:opacity-50"
+            className="w-full bg-[#6aaed0] hover:opacity-80 text-black font-semibold py-2 rounded-full transition disabled:opacity-50"
           >
             {isLoading ? "Registering..." : "Create Account"}
           </button>
@@ -115,7 +115,7 @@ export default function Register() {
             Already have an account?{" "}
             <Link
               to="/login"
-              className="text-sky-400 hover:underline"
+              className="text-[#bfd06a] hover:underline"
             >
               Login here
             </Link>

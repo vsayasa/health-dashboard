@@ -63,7 +63,7 @@ export default function Login() {
               placeholder="example@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-200 text-white"
+              className="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bfd06a] text-white"
               required
             />
           </div>
@@ -75,7 +75,7 @@ export default function Login() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-200 text-white"
+              className="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bfd06a] text-white"
               required
             />
           </div>
@@ -83,7 +83,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-lime-200 hover:opacity-80 text-black font-semibold py-2 rounded-lg transition disabled:opacity-80"
+            className="w-full bg-[#bfd06a] hover:opacity-80 text-black font-semibold py-2 rounded-full transition disabled:opacity-80"
           >
             {isLoading ? "Logging in..." : "Login"}
           </button>
@@ -92,7 +92,7 @@ export default function Login() {
         {/* Footer */}
         <p className="text-center text-gray-500 text-sm mt-6">
           Don’t have an account?{" "}
-          <Link to="/register" className="text-sky-300 cursor-pointer hover:underline">
+          <Link to="/register" className="text-[#6aaed0] cursor-pointer hover:underline">
             Sign up
           </Link>
         </p>
