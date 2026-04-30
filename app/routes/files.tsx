@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate, NavLink } from "react-router";
-import Logo from "../components/ui/logo";
+import Logo from "../components/ui/Logo";
 import { Link } from "react-router";
 
 export default function Files() {
@@ -123,30 +123,31 @@ export default function Files() {
   return (
     <div className="flex min-h-screen bg-black text-white text-sm">
       <div className="w-60 bg-gray-900/70 border-r border-gray-800 p-5 flex flex-col gap-5">
-        <div className="flex flex-col items-center -mt-6 -mb-8">
+        <div className="flex flex-col items-center -mt-10 -mb-10">
           <Link to="/" className="hover:opacity-80 transition cursor-pointer">
             <Logo size="xl" />
           </Link>
         </div>
 
         <nav className="flex flex-col gap-2 mt-4">
-          {["dashboard", "logmetrics", "files"].map((path) => (
+          {[
+            { path: "dashboard", label: "Dashboard" },
+            { path: "goals", label: "Goals" }, 
+            { path: "logmetrics", label: "Log Metrics" },
+            { path: "files", label: "Files" },
+          ].map(({ path, label }) => (
             <NavLink
               key={path}
               to={`/${path}`}
-                className={({ isActive }) =>
+              className={({ isActive }) =>
                 `px-4 py-2 rounded-full ${
-                    isActive
+                  isActive
                     ? "bg-gray-300 text-black font-semibold"
                     : "text-gray-400 hover:text-white font-semibold"
                 }`
-                }
+              }
             >
-              {path === "dashboard"
-                ? "Dashboard"
-                : path === "logmetrics"
-                ? "Log Metrics"
-                : "Files"}
+              {label}
             </NavLink>
           ))}
         </nav>
@@ -157,6 +158,9 @@ export default function Files() {
           <div>
             <h1 className="text-3xl font-semibold">Health Library</h1>
             <p className="text-gray-400 text-s mt-1">{currentDate}</p>
+            <p className="text-gray-500 text-xs mt-4">
+              Upload and manage your meals and health reports
+            </p>
           </div>
 
           <div
@@ -164,7 +168,7 @@ export default function Files() {
             onMouseEnter={() => setMenuOpen(true)}
             onMouseLeave={() => setMenuOpen(false)}
           >
-            <div className="flex items-center gap-2 cursor-pointer">
+            <div className="flex items-center gap-2 -mt-10 cursor-pointer">
               <span>{firstName}</span>
               <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
                 {firstName[0]}
@@ -200,7 +204,6 @@ export default function Files() {
           <div className="bg-gray-900 p-4 rounded-2xl">
             <div className="flex justify-between items-center mb-4">
               <h2 className="font-semibold">Meal Gallery</h2>
-
               <label className="bg-[#6aaed0] hover:bg-[#5a9cc0] text-black px-4 py-2 rounded-full font-semibold cursor-pointer">
                 {imageUploading ? "Uploading..." : "Upload Image"}
                 <input
@@ -212,7 +215,9 @@ export default function Files() {
                 />
               </label>
             </div>
-
+            <p className="text-gray-500 text-xs -mt-4 mb-4">
+              Images are organized by upload date
+            </p> 
             <div className="bg-black/30 border border-gray-800 rounded-2xl p-3 min-h-[300px]">
               {mealFiles.length === 0 ? (
                 <p className="text-gray-500 text-sm">
@@ -267,7 +272,9 @@ export default function Files() {
                 />
               </label>
             </div>
-
+            <p className="text-gray-500 text-xs -mt-4 mb-4">
+              Click to open or download reports
+            </p> 
             <div className="bg-black/30 border border-gray-800 rounded-2xl p-3 min-h-[300px]">
               {reportFiles.length === 0 ? (
                 <p className="text-gray-500 text-sm">

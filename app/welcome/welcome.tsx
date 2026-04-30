@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import Logo from "../components/ui/logo";
+import Logo from "../components/ui/Logo";
 
 export function Welcome() {
   return (

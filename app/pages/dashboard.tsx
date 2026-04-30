@@ -9,7 +9,7 @@ import {
 } from "recharts";
 import { useNavigate, NavLink } from "react-router";
 import { Link } from "react-router";
-import Logo from "../components/ui/logo";
+import Logo from "../components/ui/Logo";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -197,14 +197,19 @@ export default function Dashboard() {
   return (
     <div className="flex min-h-screen bg-black text-white text-sm">
       <div className="w-60 bg-gray-900/70 border-r border-gray-800 p-5 flex flex-col gap-5">
-        <div className="flex flex-col items-center -mt-6 -mb-8">
+        <div className="flex flex-col items-center -mt-10 -mb-10">
             <Link to="/" className="hover:opacity-80 transition cursor-pointer">
               <Logo size="xl" />
             </Link>
         </div>
 
         <nav className="flex flex-col gap-2 mt-4">
-          {["dashboard", "logmetrics", "files"].map((path) => (
+          {[
+            { path: "dashboard", label: "Dashboard" },
+            { path: "goals", label: "Goals" }, 
+            { path: "logmetrics", label: "Log Metrics" },
+            { path: "files", label: "Files" },
+          ].map(({ path, label }) => (
             <NavLink
               key={path}
               to={`/${path}`}
@@ -216,11 +221,7 @@ export default function Dashboard() {
                 }`
               }
             >
-              {path === "dashboard"
-                ? "Dashboard"
-                : path === "logmetrics"
-                ? "Log Metrics"
-                : "Files"}
+              {label}
             </NavLink>
           ))}
         </nav>
@@ -231,9 +232,12 @@ export default function Dashboard() {
           <div>
             <h1 className="text-3xl font-semibold">Health Overview</h1>
             <p className="text-gray-400 text-s mt-1">{currentDate}</p>
+            <p className="text-gray-500 text-xs mt-4">
+              Visualize your health trends across different metrics over time
+            </p>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-8 -mt-10">
             <div className="flex items-center gap-2 text-s">
               <select
                 value={range}
