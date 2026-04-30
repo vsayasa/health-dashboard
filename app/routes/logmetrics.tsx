@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate, NavLink } from "react-router";
+import Logo from "../components/ui/logo";
+import { Link } from "react-router";
 
 export default function LogMetrics() {
   const navigate = useNavigate();
@@ -149,10 +151,11 @@ export default function LogMetrics() {
     <div className="flex min-h-screen bg-black text-white text-sm">
       {/* SIDEBAR */}
       <div className="w-60 bg-gray-900/70 border-r border-gray-800 p-5 flex flex-col gap-5">
-        <h1 className="text-xl font-bold">
-          <span className="text-lime-200">Vita</span>
-          <span className="text-sky-300">Metrics</span>
-        </h1>
+        <div className="flex flex-col items-center -mt-6 -mb-8">
+          <Link to="/" className="hover:opacity-80 transition cursor-pointer">
+            <Logo size="xl" />
+          </Link>
+        </div>
 
         <nav className="flex flex-col gap-2 mt-4">
           {["dashboard", "logmetrics", "files"].map((path) => (
@@ -322,7 +325,7 @@ export default function LogMetrics() {
           <div className="mt-5 flex justify-end">
             <button
               disabled={loading}
-              className="bg-[#6aaed0] hover:bg-[#5a9cc0] text-black px-6 py-2 rounded font-semibold"
+              className="bg-[#bfd06a] hover:opacity-80 text-black px-6 py-2 rounded font-semibold"
             >
               {loading ? "Saving..." : "Submit"}
             </button>
