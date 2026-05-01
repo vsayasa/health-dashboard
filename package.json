@@ -9,7 +9,7 @@
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js --port 3000",
     "typecheck": "react-router typegen && tsc",
-    "server": "react-router-serve ./build/server/index.js --port 3000"
+    "server": "tsx app/backend/server.ts"
   },
   "dependencies": {
     "@azure/cosmos": "^4.9.2",
