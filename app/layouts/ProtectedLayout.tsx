@@ -7,13 +7,11 @@ import Navbar from "../components/ui/navbar";
 export default function ProtectedLayout() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [isLoggedin, setIsLoggedin] = useState(false);
 
   useEffect (() => { 
     const checkAuth = async () => {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) {
-      setIsLoggedin(false);
       navigate('/login');
     }
     else {
@@ -38,7 +36,6 @@ export default function ProtectedLayout() {
         })
     });
       }
-      setIsLoggedin(true);
     }
     setLoading(false);
   }

@@ -15,8 +15,8 @@ const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 const connectionString = process.env.BLOB_STORAGE_CONNECTION_STRING!;
-const mealsContainerName = process.env.BLOB_STORAGE_CONTAINER_MEALS || "meal-images";
-const reportsContainerName = process.env.BLOB_STORAGE_CONTAINER_REPORTS || "report-docs";
+const mealsContainerName = "meal-images";
+const reportsContainerName = "report-docs";
 
 const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
 

@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router";
-import Logo from "../components/ui/logo";
+import Logo from "../components/ui/Logo";
 
 export default function Register() {
   const [email, setEmail] = useState("");

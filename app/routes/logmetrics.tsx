@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate, NavLink } from "react-router";
-import Logo from "../components/ui/logo";
+import Logo from "../components/ui/Logo";
 import { Link } from "react-router";
 
 export default function LogMetrics() {
@@ -151,14 +151,19 @@ export default function LogMetrics() {
     <div className="flex min-h-screen bg-black text-white text-sm">
       {/* SIDEBAR */}
       <div className="w-60 bg-gray-900/70 border-r border-gray-800 p-5 flex flex-col gap-5">
-        <div className="flex flex-col items-center -mt-6 -mb-8">
+        <div className="flex flex-col items-center -mt-10 -mb-10">
           <Link to="/" className="hover:opacity-80 transition cursor-pointer">
             <Logo size="xl" />
           </Link>
         </div>
 
         <nav className="flex flex-col gap-2 mt-4">
-          {["dashboard", "logmetrics", "files"].map((path) => (
+          {[
+            { path: "dashboard", label: "Dashboard" },
+            { path: "goals", label: "Goals" }, 
+            { path: "logmetrics", label: "Log Metrics" },
+            { path: "files", label: "Files" },
+          ].map(({ path, label }) => (
             <NavLink
               key={path}
               to={`/${path}`}
@@ -170,11 +175,7 @@ export default function LogMetrics() {
                 }`
               }
             >
-              {path === "dashboard"
-                ? "Dashboard"
-                : path === "logmetrics"
-                ? "Log Metrics"
-                : "Files"}
+              {label}
             </NavLink>
           ))}
         </nav>
@@ -187,6 +188,9 @@ export default function LogMetrics() {
           <div>
             <h1 className="text-3xl font-semibold">Log Daily Health Metrics</h1>
             <p className="text-gray-400 text-s mt-1">{currentDate}</p>
+            <p className="text-gray-500 text-xs mt-4">
+              Log your daily health metrics to track trends over time
+            </p>
           </div>
 
           {/* PROFILE */}
@@ -195,7 +199,7 @@ export default function LogMetrics() {
             onMouseEnter={() => setMenuOpen(true)}
             onMouseLeave={() => setMenuOpen(false)}
           >
-            <div className="flex items-center gap-2 cursor-pointer">
+            <div className="flex items-center gap-2 -mt-10 cursor-pointer">
               <span>{firstName}</span>
               <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
                 {firstName[0]}
@@ -327,7 +331,7 @@ export default function LogMetrics() {
               disabled={loading}
               className="bg-[#bfd06a] hover:opacity-80 text-black px-6 py-2 rounded-full font-semibold"
             >
-              {loading ? "Saving..." : "Submit"}
+              {loading ? "Saving..." : "Save"}
             </button>
           </div>
         </form>
