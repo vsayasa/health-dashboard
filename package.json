@@ -7,7 +7,7 @@
     "dev:frontend": "react-router dev",
     "dev-win": "start \"Frontend\" cmd /k \"npm run dev:frontend\" & start \"Backend\" cmd /k \"npm run server\"",
     "dev": "react-router dev",
-    "start": "react-router-serve ./build/server/index.js",
+    "start": "node ./node_modules/@react-router/serve/dist/cli.js ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "server": "tsx app/backend/server.ts",
     "e": ""
