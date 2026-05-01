@@ -8,9 +8,6 @@
     "dev-win": "start \"Frontend\" cmd /k \"npm run dev:frontend\" & start \"Backend\" cmd /k \"npm run server\"",
     "dev": "react-router dev",
     "start": "node ./node_modules/@react-router/serve/dist/cli.js ./build/server/index.js",
-=======
-    "start": "react-router-serve ./build/server/index.js --port 3000",
->>>>>>> 994fb206c3c2157f8e82a0beee9b5ccfd08ee339
     "typecheck": "react-router typegen && tsc",
     "server": "tsx app/backend/server.ts",
     "e": ""
