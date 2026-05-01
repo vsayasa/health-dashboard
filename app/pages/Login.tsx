@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate, Link } from "react-router";
-import Logo from "../components/ui/logo";
+import Logo from "../components/ui/Logo";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -97,8 +97,8 @@ export default function Login() {
         <p className="text-center text-gray-500 text-sm mt-6">
           Don’t have an account?{" "}
           <Link to="/register" className="text-[#6aaed0] cursor-pointer hover:underline">
-            Sign up
-          </span>
+            Sign up here
+          </Link>
         </p>
       </div>
     </div>
