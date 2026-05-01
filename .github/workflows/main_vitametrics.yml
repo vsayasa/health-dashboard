@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
       contents: read #This is required for actions/checkout
 
@@ -28,14 +28,12 @@ jobs:
           npm install
           npm run build --if-present
           npm run test --if-present
-
+      
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: |
-            build
-            node_modules
+          path: .
 
   deploy:
     runs-on: ubuntu-latest
@@ -53,13 +51,13 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_A480E0412558417ABB45ADC398642DBD }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_43CBC68411284C0197196200092CD2AF }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_0F7AF23327A746A8AA1BD2091D6A2AE5 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_3F967B6A3FCF48EFB578E8205E43D66C }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_67B4EF4B71D546B5B69D6A18F562837A }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_3AFA5196F94041B5B49C5CE3CD1EE2D8 }}
 
       - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
         with:
           app-name: 'vitametrics'
           slot-name: 'Production'
