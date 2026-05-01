@@ -2,22 +2,14 @@ import { supabase } from "../supabaseClient";
 import { useEffect, useState } from "react";
 import React from "react";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  BarChart,
-  Bar,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  ScatterChart,
-  Scatter
+  LineChart, Line, XAxis, YAxis, Tooltip,
+  BarChart, Bar, ResponsiveContainer,
+  PieChart, Pie, Cell,
+  ScatterChart, Scatter
 } from "recharts";
-import { useNavigate } from "react-router";
-import { NavLink } from "react-router";
+import { useNavigate, NavLink } from "react-router";
+import { Link } from "react-router";
+import Logo from "../components/ui/logo";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -31,13 +23,16 @@ export default function Dashboard() {
   const [nutritionData, setNutritionData] = useState<any[]>([]);
   const [wellnessData, setWellnessData] = useState<any[]>([]);
 
-  const [goals, setGoals] = useState<any>({
-    sleep: 0,
-    exercise: 0,
-    nutrition: 0
-  });
+  const [range, setRange] = useState("7");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
-  const COLORS = ["#4ade80", "#60a5fa", "#facc15"];
+  const [sleepMetric, setSleepMetric] = useState("hours");
+  const [exerciseType, setExerciseType] = useState("all");
+  const [wellnessX, setWellnessX] = useState("sleep");
+  const [wellnessY, setWellnessY] = useState("mood");
+
+  const COLORS = ["#bfd06a", "#6aaed0", "#2f98bc"];
 
   const currentDate = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -46,7 +41,47 @@ export default function Dashboard() {
     year: "numeric"
   });
 
-  // GET USER
+  const formatDate = (date: Date) => {
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return local.toISOString().split("T")[0];
+  };
+
+  const formatMMDD = (dateString: string) => {
+    const d = new Date(`${dateString}T00:00:00`);
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${month}/${day}`;
+  };
+
+  const buildDateRange = (start: string, end: string) => {
+    const dates: string[] = [];
+    const current = new Date(`${start}T00:00:00`);
+    const last = new Date(`${end}T00:00:00`);
+
+    while (current <= last) {
+      dates.push(formatDate(current));
+      current.setDate(current.getDate() + 1);
+    }
+
+    return dates;
+  };
+
+  useEffect(() => {
+    const today = new Date();
+
+    if (range === "7") {
+      const start = new Date();
+      start.setDate(today.getDate() - 6);
+      setStartDate(formatDate(start));
+      setEndDate(formatDate(today));
+    } else if (range === "30") {
+      const start = new Date();
+      start.setDate(today.getDate() - 29);
+      setStartDate(formatDate(start));
+      setEndDate(formatDate(today));
+    }
+  }, [range]);
+
   useEffect(() => {
     const getUser = async () => {
       const { data } = await supabase.auth.getUser();
@@ -60,283 +95,357 @@ export default function Dashboard() {
     getUser();
   }, []);
 
-  // LOGOUT
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/login");
   };
 
-  // FETCH DATA
   useEffect(() => {
-    if (!user) return;
+    if (!user || !startDate || !endDate) return;
 
     const fetchMetrics = async () => {
-      try {
-        const res = await fetch(`/api/metrics?user_id=${user.id}`);
-        const data = await res.json();
+      setSleepData([]);
+      setExerciseData([]);
+      setWellnessData([]);
+      setNutritionData([]);
 
-        const sleep: any[] = [];
-        const exercise: any[] = [];
-        const nutrition: any[] = [];
-        const wellness: any[] = [];
+      const query = `/api/metrics?user_id=${user.id}&start_date=${startDate}&end_date=${endDate}&_=${Date.now()}`;
 
-        let totalSleep = 0;
-        let totalExercise = 0;
-        let totalNutrition = 0;
+      const res = await fetch(query);
+      const data = await res.json();
 
-        data.forEach((item: any) => {
-          const day = new Date(item.date).toLocaleDateString("en-US", {
-            weekday: "short",
-          });
+      const latestByDate = new Map<string, any>();
 
-          if (item.sleep?.hours != null) {
-            sleep.push({ day, hours: item.sleep.hours });
-            totalSleep += item.sleep.hours;
-          }
+      data.forEach((item: any) => {
+        if (!item.date) return;
+        const normalizedDate = item.date.split("T")[0];
 
-          if (item.exercise?.hours != null) {
-            exercise.push({ day, hours: item.exercise.hours });
-            totalExercise += item.exercise.hours;
-          }
+        const existing = latestByDate.get(normalizedDate);
+        if (!existing || item._ts > existing._ts) {
+          latestByDate.set(normalizedDate, item);
+        }
+      });
 
-          if (item.nutrition) {
-            const protein = item.nutrition.protein || 0;
-            totalNutrition += protein;
+      const dateRange = buildDateRange(startDate, endDate);
 
-            nutrition.push(
-              { name: "Protein", value: protein },
-              { name: "Carbs", value: item.nutrition.carbs || 0 },
-              { name: "Fat", value: item.nutrition.fat || 0 }
-            );
-          }
+      let protein = 0;
+      let carbs = 0;
+      let fat = 0;
 
-          if (item.wellness) {
-            wellness.push({
-              sleep: item.sleep?.hours || 0,
-              mood: item.wellness.mood || 0,
-            });
-          }
-        });
+      const sleep = dateRange.map((date) => {
+        const item = latestByDate.get(date);
 
-        // SET DATA
-        setSleepData(sleep);
-        setExerciseData(exercise);
-        setNutritionData(nutrition);
-        setWellnessData(wellness);
+        return {
+          date,
+          label: formatMMDD(date),
+          hours: item?.sleep?.hours || 0,
+          quality: item?.sleep?.quality || 0
+        };
+      });
 
-        // SET GOALS FROM API (assuming included once)
-        if (data[0]?.goals) {
-          setGoals(data[0].goals);
+      const exercise = dateRange.map((date) => {
+        const item = latestByDate.get(date);
+
+        const matchesExercise =
+          item?.exercise &&
+          (exerciseType === "all" || item.exercise.type === exerciseType);
+
+        return {
+          date,
+          label: formatMMDD(date),
+          hours: matchesExercise ? item.exercise.hours || 0 : 0,
+          type: item?.exercise?.type || ""
+        };
+      });
+
+      const wellness: any[] = [];
+
+      dateRange.forEach((date) => {
+        const item = latestByDate.get(date);
+
+        if (item?.nutrition) {
+          protein += item.nutrition.protein || 0;
+          carbs += item.nutrition.carbs || 0;
+          fat += item.nutrition.fat || 0;
         }
 
-        // STORE TOTALS
-        setTotals({
-          sleep: totalSleep,
-          exercise: totalExercise,
-          nutrition: totalNutrition
-        });
+        if (item?.wellness) {
+          wellness.push({
+            date,
+            sleep: item.sleep?.hours || 0,
+            exercise: item.exercise?.hours || 0,
+            mood: item.wellness.mood || 0,
+            stress: item.wellness.stress || 0
+          });
+        }
+      });
 
-      } catch (error) {
-        console.error("Error fetching metrics:", error);
-      }
+      setSleepData(sleep);
+      setExerciseData(exercise);
+      setWellnessData(wellness);
+
+      setNutritionData([
+        { name: "Protein", value: protein },
+        { name: "Carbs", value: carbs },
+        { name: "Fat", value: fat }
+      ]);
     };
 
     fetchMetrics();
-  }, [user]);
-
-  const [totals, setTotals] = useState<any>({
-    sleep: 0,
-    exercise: 0,
-    nutrition: 0
-  });
-
-  // CALCULATIONS
-  const getPercent = (value: number, goal: number) => {
-    if (!goal) return 0;
-    return Math.min((value / goal) * 100, 100);
-  };
-
-  const overallPercent = Math.round(
-    (
-      getPercent(totals.sleep, goals.sleep) +
-      getPercent(totals.exercise, goals.exercise) +
-      getPercent(totals.nutrition, goals.nutrition)
-    ) / 3
-  );
-
-  const donutData = [
-    { name: "Completed", value: overallPercent },
-    { name: "Remaining", value: 100 - overallPercent }
-  ];
+  }, [user, range, startDate, endDate, exerciseType]);
 
   return (
-    <div className="flex min-h-screen bg-black text-white relative overflow-hidden">
-      
-      <div className="absolute w-[400px] h-[400px] bg-green-500/10 blur-3xl rounded-full top-20 left-10"></div>
-      <div className="absolute w-[400px] h-[400px] bg-blue-500/10 blur-3xl rounded-full bottom-10 right-10"></div>
+    <div className="flex min-h-screen bg-black text-white text-sm">
+      <div className="w-60 bg-gray-900/70 border-r border-gray-800 p-5 flex flex-col gap-5">
+        <div className="flex flex-col items-center -mt-6 -mb-8">
+            <Link to="/" className="hover:opacity-80 transition cursor-pointer">
+              <Logo size="xl" />
+            </Link>
+        </div>
 
-      {/* SIDEBAR */}
-      <div className="w-64 bg-gray-900/70 backdrop-blur-lg border-r border-gray-800 p-6 flex flex-col gap-6 relative z-20">
-        <h1 className="text-2xl font-bold">
-          <span className="text-green-400">Vita</span>
-          <span className="text-blue-400">Metrics</span>
-        </h1>
-
-        <nav className="flex flex-col gap-3 mt-6">
-          <NavLink to="/dashboard" className={({ isActive }) =>
-            `px-4 py-2 rounded-full ${isActive ? "bg-gradient-to-r from-green-400 to-blue-500 text-black" : "text-gray-400 hover:text-white"}`
-          }>
-            Dashboard
-          </NavLink>
-          <NavLink to="/logmetrics" className={({ isActive }) =>
-            `px-4 py-2 rounded-full ${isActive ? "bg-gradient-to-r from-green-400 to-blue-500 text-black" : "text-gray-400 hover:text-white"}`
-          }>
-            Log Metrics
-          </NavLink>
-          <NavLink to="/files" className={({ isActive }) =>
-            `px-4 py-2 rounded-full ${isActive ? "bg-gradient-to-r from-green-400 to-blue-500 text-black" : "text-gray-400 hover:text-white"}`
-          }>
-            Files
-          </NavLink>
+        <nav className="flex flex-col gap-2 mt-4">
+          {["dashboard", "logmetrics", "files"].map((path) => (
+            <NavLink
+              key={path}
+              to={`/${path}`}
+              className={({ isActive }) =>
+                `px-4 py-2 rounded-full ${
+                  isActive
+                    ? "bg-gray-300 text-black font-semibold"
+                    : "text-gray-400 hover:text-white font-semibold"
+                }`
+              }
+            >
+              {path === "dashboard"
+                ? "Dashboard"
+                : path === "logmetrics"
+                ? "Log Metrics"
+                : "Files"}
+            </NavLink>
+          ))}
         </nav>
       </div>
 
-      {/* MAIN */}
-      <div className="flex-1 p-8 overflow-y-auto">
-
-        {/* HEADER */}
-        <div className="flex justify-between items-center mb-10">
+      <div className="flex-1 p-9">
+        <div className="flex justify-between items-center mb-2 pb-2">
           <div>
             <h1 className="text-3xl font-semibold">Health Overview</h1>
-            <p className="text-gray-400">{currentDate}</p>
+            <p className="text-gray-400 text-s mt-1">{currentDate}</p>
           </div>
 
-          <div 
-            className="relative"
-            onMouseEnter={() => setMenuOpen(true)}
-            onMouseLeave={() => setMenuOpen(false)}
-          >
-            <div className="flex items-center gap-3 cursor-pointer">
-              <span>{firstName}</span>
-              <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center">
-                {firstName.charAt(0)}
-              </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-s">
+              <select
+                value={range}
+                onChange={(e) => setRange(e.target.value)}
+                className="bg-gray-800 px-2 py-1 rounded-2xl"
+              >
+                <option value="7">Last 7 Days</option>
+                <option value="30">Last 30 Days</option>
+                <option value="custom">Custom</option>
+              </select>
+
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  setRange("custom");
+                }}
+                className="bg-gray-800 px-2 py-1 rounded-2xl"
+              />
+
+              <span>-</span>
+
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  setRange("custom");
+                }}
+                className="bg-gray-800 px-2 py-1 rounded-2xl"
+              />
             </div>
 
-            {menuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-gray-900 border border-gray-800 rounded-xl">
-                <button onClick={() => navigate("/profile")} className="block w-full text-left px-4 py-2 hover:bg-gray-800">Profile</button>
-                <button onClick={() => navigate("/settings")} className="block w-full text-left px-4 py-2 hover:bg-gray-800">Settings</button>
-                <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-red-400">Logout</button>
+            <div
+              className="relative z-50"
+              onMouseEnter={() => setMenuOpen(true)}
+              onMouseLeave={() => setMenuOpen(false)}
+            >
+              <div className="flex items-center gap-2 cursor-pointer">
+                <span>{firstName}</span>
+                <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+                  {firstName[0]}
+                </div>
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* GOALS SECTION */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-
-          {/* Progress Bars */}
-          <div className="lg:col-span-2 bg-gray-900/40 p-6 rounded-2xl border border-gray-800">
-            <h2 className="mb-4 text-gray-300">Weekly Goals</h2>
-
-            {["sleep", "exercise", "nutrition"].map((key: any) => {
-              const percent = getPercent(totals[key], goals[key]);
-
-              return (
-                <div key={key} className="mb-5">
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="capitalize">{key}</span>
-                    <span>{totals[key]} / {goals[key]}</span>
-                  </div>
-
-                  <div className="w-full bg-gray-800 h-3 rounded-full">
-                    <div
-                      className="h-3 rounded-full bg-gradient-to-r from-green-400 to-blue-500"
-                      style={{ width: `${percent}%` }}
-                    />
+              {menuOpen && (
+                <div className="absolute right-0 top-full pt-1 w-40 z-50">
+                  <div className="bg-gray-900 border rounded">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full p-2 text-left text-red-400 hover:bg-gray-800 cursor-pointer"
+                    >
+                      Logout
+                    </button>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Donut Chart */}
-          <div className="bg-gray-900/40 p-6 rounded-2xl border border-gray-800 flex flex-col items-center justify-center">
-            <h2 className="text-gray-300 mb-4">Goal Completion</h2>
-
-            <div className="w-full h-[200px]">
-              <ResponsiveContainer>
-                <PieChart>
-                  <Pie
-                    data={donutData}
-                    dataKey="value"
-                    innerRadius={60}
-                    outerRadius={80}
-                  >
-                    <Cell fill="#4ade80" />
-                    <Cell fill="#1f2937" />
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
+              )}
             </div>
-
-            <p className="mt-4 text-xl font-semibold">{overallPercent}%</p>
           </div>
         </div>
 
-        {/* EXISTING CHARTS */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 bg-gray-900 p-4 rounded-2xl">
+            <div className="flex justify-between mb-3 font-semibold">
+              <h2>Sleep</h2>
+              <select
+                onChange={(e) => setSleepMetric(e.target.value)}
+                className="bg-gray-800 px-2 py-1 rounded-2xl text-s"
+              >
+                <option value="hours">Hours</option>
+                <option value="quality">Quality</option>
+              </select>
+            </div>
 
-          <div className="lg:col-span-2 bg-gray-900/40 p-6 rounded-2xl border border-gray-800">
-            <h2 className="mb-4">Sleep Trends</h2>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={sleepData}>
-                <XAxis dataKey="day" />
-                <YAxis />
-                <Tooltip />
-                <Line dataKey="hours" stroke="#4ade80" />
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={sleepData} margin={{ top: 20, right: 20, left: 10, bottom: 20 }}>
+                <XAxis
+                  dataKey="label"
+                  interval={range === "30" ? 4 : 0}
+                  label={{ value: "Date", position: "insideBottom", offset: -10 }}
+                />
+                <YAxis
+                  label={{
+                    value: sleepMetric === "hours" ? "Hours" : "Quality",
+                    angle: -90,
+                    position: "insideLeft"
+                  }}
+                />
+                <Tooltip
+                  formatter={(value: any, name: any, props: any) => [
+                    value,
+                    `${formatMMDD(props.payload.date)} (${name})`
+                  ]}
+                />
+                <Line dataKey={sleepMetric} stroke="#bfd06a" />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="bg-gray-900/40 p-6 rounded-2xl border border-gray-800">
-            <h2 className="mb-4">Nutrition</h2>
-            <ResponsiveContainer width="100%" height={250}>
+          <div className="bg-gray-900 p-4 rounded-2xl">
+            <h2 className="mb-3 font-semibold">Nutrition</h2>
+
+            <ResponsiveContainer width="100%" height={200}>
               <PieChart>
-                <Pie data={nutritionData} dataKey="value" innerRadius={60}>
+                <Pie
+                  data={nutritionData}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={40}
+                  outerRadius={60}
+                  labelLine={true}
+                  label={({ cx, cy, midAngle, outerRadius, name, value }) => {
+                    const RADIAN = Math.PI / 180;
+                    const x = cx + (outerRadius + 25) * Math.cos(-midAngle * RADIAN);
+                    const y = cy + (outerRadius + 25) * Math.sin(-midAngle * RADIAN);
+
+                    return (
+                      <text x={x} y={y} textAnchor={x > cx ? "start" : "end"} fill="#8f8f8f" fontSize={12}>
+                        <tspan x={x} dy="0">{name}</tspan>
+                        <tspan x={x} dy="14">{value}</tspan>
+                      </text>
+                    );
+                  }}
+                >
                   {nutritionData.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                    <Cell key={i} fill={COLORS[i]} />
                   ))}
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="lg:col-span-2 bg-gray-900/40 p-6 rounded-2xl border border-gray-800">
-            <h2 className="mb-4">Exercise</h2>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={exerciseData}>
-                <XAxis dataKey="day" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="hours" fill="#60a5fa" />
+          <div className="lg:col-span-2 bg-gray-900 p-4 rounded-2xl">
+            <div className="flex justify-between mb-3 font-semibold">
+              <h2>Exercise</h2>
+              <select
+                onChange={(e) => setExerciseType(e.target.value)}
+                className="bg-gray-800 px-2 py-1 rounded-2xl text-s"
+              >
+                <option value="all">All</option>
+                <option value="cardio">Cardio</option>
+                <option value="strength">Strength</option>
+              </select>
+            </div>
+
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={exerciseData} margin={{ top: 10, right: 20, left: 10, bottom: 25 }}>
+                <XAxis
+                  dataKey="label"
+                  interval={range === "30" ? 4 : 0}
+                  label={{ value: "Date", position: "insideBottom", offset: -10 }}
+                />
+                <YAxis
+                  label={{
+                    value: "Hours",
+                    angle: -90,
+                    position: "insideLeft"
+                  }}
+                />
+                <Tooltip
+                  cursor={false}
+                  formatter={(value: any, name: any, props: any) => [
+                    value,
+                    `${formatMMDD(props.payload.date)} (${name})`
+                  ]}
+                />
+                <Bar dataKey="hours" fill="#6aaed0" />
               </BarChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="bg-gray-900/40 p-6 rounded-2xl border border-gray-800">
-            <h2 className="mb-4">Wellness</h2>
-            <ResponsiveContainer width="100%" height={250}>
-              <ScatterChart>
-                <XAxis dataKey="sleep" />
-                <YAxis dataKey="mood" />
-                <Tooltip />
-                <Scatter data={wellnessData} fill="#a78bfa" />
+          <div className="bg-gray-900 p-4 rounded-2xl">
+            <div className="flex gap-2 mb-3 font-semibold">
+              <h2 className="mr-2">Wellness</h2>
+              <select onChange={(e)=>setWellnessX(e.target.value)} className="bg-gray-800 px-2 py-1 text-s rounded-2xl">
+                <option value="sleep">Sleep</option>
+                <option value="exercise">Exercise</option>
+              </select>
+
+              <select onChange={(e)=>setWellnessY(e.target.value)} className="bg-gray-800 px-2 py-1 text-s rounded-2xl">
+                <option value="mood">Mood</option>
+                <option value="stress">Stress</option>
+              </select>
+            </div>
+
+            <ResponsiveContainer width="100%" height={200}>
+              <ScatterChart margin={{ top: 10, right: 20, left: 10, bottom: 25 }}>
+                <XAxis
+                  type="number"
+                  dataKey={wellnessX}
+                  label={{ value: wellnessX, position: "insideBottom", offset: -10 }}
+                />
+                <YAxis
+                  type="number"
+                  dataKey={wellnessY}
+                  label={{
+                    value: wellnessY,
+                    angle: -90,
+                    position: "insideLeft"
+                  }}
+                />
+                <Tooltip
+                  formatter={(value: any, name: any, props: any) => [
+                    value,
+                    `${name} (${formatMMDD(props.payload.date)})`
+                  ]}
+                />
+                <Scatter data={wellnessData} fill="#2f98bc" />
               </ScatterChart>
             </ResponsiveContainer>
           </div>
-
         </div>
       </div>
     </div>

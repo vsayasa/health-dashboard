@@ -1,24 +1,17 @@
 import { Link } from "react-router";
+import Logo from "../components/ui/logo";
 
 export function Welcome() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-black text-white relative overflow-hidden px-4">
 
-      {/* Background glow */}
-      <div className="absolute w-[400px] h-[400px] bg-green-500/20 blur-3xl rounded-full top-20 left-10"></div>
-      <div className="absolute w-[400px] h-[400px] bg-blue-500/20 blur-3xl rounded-full bottom-10 right-10"></div>
-
-      <div className="relative z-10 w-full max-w-4xl flex flex-col items-center text-center gap-10">
+      <div className="relative z-10 w-full max-w-4xl flex flex-col items-center text-center gap-5 -mt-20">
 
         {/* Logo / Title */}
-        <h1 className="text-5xl font-bold">
-          <span className="text-green-400">Vita</span>
-          <span className="text-blue-400">Metrics</span>
-        </h1>
+        <Logo size="xxxl" />
 
-        <p className="text-gray-400 max-w-xl">
-          Track your health, visualize your habits, and optimize your daily performance —
-          all in one dashboard.
+        <p className="text-gray-400 font-semibold text-3xl -mt-23 mb-2">
+          Personal Health Dashboard
         </p>
 
         {/* Card */}
@@ -32,32 +25,28 @@ export function Welcome() {
 
             <Link
               to="/login"
-              className="w-full bg-gradient-to-r from-green-400 to-blue-500 text-black font-semibold py-2 rounded-lg transition hover:opacity-90"
+              className="w-full bg-[#bfd06a] text-black font-semibold py-2 rounded-full transition hover:opacity-80"
             >
               Login
             </Link>
 
             <Link
               to="/register"
-              className="w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded-lg transition"
+              className="w-full bg-[#6aaed0] text-black font-semibold py-2 rounded-full transition hover:opacity-80"
             >
-              Create Account
+              Signup
             </Link>
 
-            <Link
-              to="/dashboard"
-              className="w-full text-sm text-gray-400 hover:text-white transition underline mt-2"
-            >
-              Go to Dashboard →
-            </Link>
 
           </div>
         </div>
 
         {/* Footer */}
-        <p className="text-gray-600 text-sm">
-          Built for smarter health tracking
+        <p className="text-gray-500 max-w-xl -10mt">
+          Track your health, visualize your habits, and optimize your daily performance —
+          all in one dashboard.
         </p>
+
       </div>
     </main>
   );

@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { supabase } from "../supabaseClient";
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
+import Logo from "../components/ui/logo";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -34,21 +35,15 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-white px-4">
       
-      {/* Background glow */}
-      <div className="absolute w-[400px] h-[400px] bg-green-500/20 blur-3xl rounded-full top-20 left-10"></div>
-      <div className="absolute w-[400px] h-[400px] bg-blue-500/20 blur-3xl rounded-full bottom-10 right-10"></div>
-
       {/* Card */}
       <div className="relative w-full max-w-md bg-gray-900/80 backdrop-blur-lg p-8 rounded-2xl shadow-2xl border border-gray-800">
 
-        {/* Logo */}
-        <h1 className="text-3xl font-bold text-center mb-2">
-          <span className="text-green-400">Vita</span>
-          <span className="text-blue-400">Metrics</span>
-        </h1>
+        <div className="flex flex-col items-center -mt-6">
+          <Logo size="xl" />
+        </div>
 
-        <p className="text-center text-gray-400 mb-6">
-          Sign in to your health dashboard
+        <p className="text-center text-gray-400 -mt-10 mb-6">
+          Log in to your health dashboard
         </p>
 
         {/* Error */}
@@ -65,10 +60,10 @@ export default function Login() {
             <label className="text-sm text-gray-400">Email</label>
             <input
               type="email"
-              placeholder="you@example.com"
+              placeholder="example@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+              className="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bfd06a] text-white"
               required
             />
           </div>
@@ -80,7 +75,7 @@ export default function Login() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-white"
+              className="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bfd06a] text-white"
               required
             />
           </div>
@@ -88,7 +83,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-green-400 to-blue-500 hover:opacity-90 text-black font-semibold py-2 rounded-lg transition disabled:opacity-50"
+            className="w-full bg-[#bfd06a] hover:opacity-80 text-black font-semibold py-2 rounded-full transition disabled:opacity-80"
           >
             {isLoading ? "Logging in..." : "Login"}
           </button>
@@ -97,7 +92,7 @@ export default function Login() {
         {/* Footer */}
         <p className="text-center text-gray-500 text-sm mt-6">
           Don’t have an account?{" "}
-          <span className="text-blue-400 cursor-pointer hover:underline">
+          <Link to="/register" className="text-[#6aaed0] cursor-pointer hover:underline">
             Sign up
           </span>
         </p>
