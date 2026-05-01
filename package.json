@@ -10,7 +10,7 @@
     "start": "node ./node_modules/@react-router/serve/dist/cli.js ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "server": "tsx app/backend/server.ts",
-    "e": ""
+    "e": "rah"
   },
   "dependencies": {
     "@azure/cosmos": "^4.9.2",
