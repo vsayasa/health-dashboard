@@ -21,15 +21,21 @@ export default function Login() {
     });
 
     setIsLoading(false);
-
     if (error) {
       setErrorMsg(error.message);
       return;
     }
 
     navigate("/dashboard");
-  };
 
+  };
+      const isLoggedIn = async() => {
+    const {data } = await supabase.auth.getUser();
+    if (data.user) {
+    navigate("/dashboard");
+    }
+  }
+  isLoggedIn();
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-white px-4">
       
