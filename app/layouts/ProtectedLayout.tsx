@@ -16,14 +16,14 @@ export default function ProtectedLayout() {
     else {
       
       // Check if they exist in db:
-      const doTheyExist = await fetch(`/api/users/${data.user.id}`);
+      const doTheyExist = await fetch(`https://func-vitametrics.azurewebsites.net/api/users?user_id=${data.user.id}`);
       const response = await doTheyExist.json();
       if (!response) {
 
       console.log("they aint here chief");
 
       // Here put code to create user
-     await fetch('/api/users', {
+     await fetch('https://func-vitametrics.azurewebsites.net/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

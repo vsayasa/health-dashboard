@@ -109,7 +109,7 @@ export default function Dashboard() {
       setWellnessData([]);
       setNutritionData([]);
 
-      const query = `/api/metrics?user_id=${user.id}&start_date=${startDate}&end_date=${endDate}&_=${Date.now()}`;
+      const query = `https://func-vitametrics.azurewebsites.net/api/metrics?user_id=${user.id}&start_date=${startDate}&end_date=${endDate}&_=${Date.now()}`;
 
       const res = await fetch(query);
       const data = await res.json();

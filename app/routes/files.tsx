@@ -47,7 +47,7 @@ export default function Files() {
   }, [user]);
 
   const fetchFiles = async () => {
-    const res = await fetch(`/api/files?user_id=${user.id}`);
+    const res = await fetch(`https://func-vitametrics.azurewebsites.net/api/files?user_id=${user.id}`);
     const data = await res.json();
 
     setMealFiles(data.filter((file: any) => file.file_type === "meal"));
@@ -74,7 +74,7 @@ export default function Files() {
     formData.append("date", date);
     formData.append("file_type", fileType);
 
-    const res = await fetch("/api/files/upload", {
+    const res = await fetch("https://func-vitametrics.azurewebsites.net/api/files", {
       method: "POST",
       body: formData,
     });
@@ -97,7 +97,7 @@ export default function Files() {
 
     setDeletingId(file.id);
 
-    const res = await fetch(`/api/files/${file.id}`, {
+    const res = await fetch(`https://func-vitametrics.azurewebsites.net/api/files?id=${file.id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

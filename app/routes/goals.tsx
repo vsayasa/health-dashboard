@@ -89,7 +89,7 @@ export default function Goals() {
     if (!user || !form.start_date || !form.end_date) return;
 
     const res = await fetch(
-      `/api/metrics?user_id=${user.id}&start_date=${form.start_date}&end_date=${form.end_date}&_=${Date.now()}`
+      `https://func-vitametrics.azurewebsites.net/api/metrics?user_id=${user.id}&start_date=${form.start_date}&end_date=${form.end_date}&_=${Date.now()}`
     );
 
     const data = await res.json();
@@ -135,7 +135,7 @@ export default function Goals() {
     if (!user) return;
 
     try {
-      const res = await fetch(`/api/goals?user_id=${user.id}`);
+      const res = await fetch(`https://func-vitametrics.azurewebsites.net/api/goals?user_id=${user.id}`);
       const data = await res.json();
 
       const nextGoals = {
@@ -186,7 +186,7 @@ export default function Goals() {
     metricType: "sleep" | "exercise" | "nutrition",
     value: string
   ) => {
-    return fetch("/api/goals", {
+    return fetch("https://func-vitametrics.azurewebsites.net/api/goals", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

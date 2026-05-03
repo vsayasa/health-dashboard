@@ -155,7 +155,7 @@ router.get("/", async (req, res) => {
  * DELETE /api/files/:id
  * Delete file from Blob Storage + delete metadata from Cosmos DB
  */
-router.delete("/:id", async (req, res) => {
+router.delete(`/?id={}`, async (req, res) => {
   try {
     console.log("DELETE ROUTE HIT");
     console.log("params:", req.params);

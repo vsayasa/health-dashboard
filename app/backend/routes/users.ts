@@ -27,37 +27,21 @@ router.post("/", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 router.get("/", async (req, res) => {
   try {
-    const query = {
-      query: "SELECT * FROM c"
-    };
-
+    let query;
+    if (Object.keys(req.query).length > 0) {
+      query = {
+        query: "SELECT * FROM c WHERE c.id = @id",
+        parameters: [{ name: "@id", value: req.query.user_id }]
+      };
+    } else {
+      query = {
+        query: "SELECT * FROM c"
+      };
+    }
     const results = await queryItems("Users", query);
-
     res.json(results);
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-/**
- * GET /api/users/:id
- * Get user by ID
- */
-router.get("/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-
-    const query = {
-      query: "SELECT * FROM c WHERE c.id = @id",
-      parameters: [{ name: "@id", value: id }]
-    };
-
-    const results = await queryItems("Users", query);
-
-    res.json(results[0] || null);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
