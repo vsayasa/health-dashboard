@@ -1,123 +1,189 @@
 # VitaMetrics: Personal Health Dashboard
+
 *By Adrien Rozario, Vonn Sayasa, Grace Yu, and Tamiya Phillips*
 
-VitaMetrics is a cloud-based personal health tracking dashboard that helps users monitor key lifestyle and wellness metrics such as sleep, exercise, nutrition, mood, and daily activity. The application allows users to log daily health data and visualize trends through interactive charts and summaries, making it easier to identify patterns and maintain healthy habits.
+🌐 **Live App:** [https://v1tametrics.azurewebsites.net/](https://v1tametrics.azurewebsites.net/)
 
-## Getting Started
+https://github.com/user-attachments/assets/2512f02d-11ff-4a15-af0d-488212b5fb28
 
-Please make sure you are using Node version >=22.21.1
+---
+
+## 🧠 Overview
+
+VitaMetrics is a cloud-based personal health tracking dashboard that enables users to monitor and analyze key lifestyle metrics, including:
+
+* Sleep
+* Exercise
+* Nutrition
+* Mood & Stress
+* Daily activity
+
+Users can log daily health data and visualize trends through interactive charts, helping them identify patterns and make more informed decisions about their health and habits.
+
+---
+
+## 🚀 Features
+
+* 🔐 User authentication (Supabase)
+* 📊 Interactive data visualizations (Recharts)
+* 📅 Custom date range filtering
+* 🥗 Nutrition tracking (macros + calories)
+* 🎯 Goal setting and tracking
+* 📁 File uploads (meal images & reports via Azure Blob Storage)
+* ☁️ Cloud-hosted backend (Azure + Cosmos DB)
+* 🌐 Fully deployed full-stack application
+
+---
+
+## 🛠️ Tech Stack
+
+**Frontend**
+
+* React (with React Router)
+* TypeScript
+* Tailwind CSS
+* Recharts
+
+**Backend**
+
+* Node.js + Express
+* Azure App Service
+* Azure Cosmos DB (NoSQL)
+* Azure Blob Storage
+
+**Authentication**
+
+* Supabase Auth
+
+---
+
+## 🌐 Deployment
+
+The application is fully deployed on **Azure App Service**:
+
+👉 [https://v1tametrics.azurewebsites.net/](https://v1tametrics.azurewebsites.net/)
+
+The deployment pipeline is automated using GitHub Actions, which builds and deploys the app on every push to the `main` branch.
+
+---
+
+## ⚙️ Getting Started (Local Development)
+
+### Requirements
+
+* Node.js ≥ 22
 
 ### Installation
-
-Install the dependencies:
 
 ```bash
 npm install
 ```
 
-### Development
-
-Start the development server with HMR:
+### Run locally
 
 ```bash
-npm run dev
+npm run dev-win
 ```
 
-Your application will be available at `http://localhost:5173`.
+This runs:
 
-## Basic commands pipeline for adding things:
+* Frontend (Vite dev server)
+* Backend (Express API)
 
-git pull (do before every editing session)  
-git add . (used to add modifications to a commit)  
-git commit -m "[commit message here]" (adds the new commit to the commit line)  
-git push (sends local commits to remote on GitHub)  
+App will be available at:
 
-
-
-# Welcome to React Router!
-
-A modern, production-ready template for building full-stack React applications using React Router.
-
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
-
-## Features
-
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
-
-## Getting Started
-
-### Installation
-
-Install the dependencies:
-
-```bash
-npm install
+```
+http://localhost:5173
 ```
 
-### Development
+---
 
-Start the development server with HMR:
-
-```bash
-npm run dev
-```
-
-Your application will be available at `http://localhost:5173`.
-
-## Building for Production
-
-Create a production build:
+## 📦 Build for Production
 
 ```bash
 npm run build
 ```
 
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
-
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
+This generates:
 
 ```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
+build/
+  ├── client/   # Frontend assets
+  └── server/   # SSR server
 ```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
 
 ---
 
-Built with ❤️ using React Router.
+## 🔄 Git Workflow
+
+```bash
+git pull
+git add .
+git commit -m "your message"
+git push
+```
+
+---
+
+## 🧩 Project Structure (Simplified)
+
+```
+app/
+  backend/        # Express API routes (metrics, goals, files, users)
+  pages/          # Main UI pages (dashboard, login, profile, etc.)
+  routes/         # Route handlers
+  components/     # Reusable UI components
+build/
+  client/         # Production frontend
+  server/         # SSR server bundle
+```
+
+---
+
+## 📊 Data Model Highlights
+
+* **Metrics (Cosmos DB)**
+
+  * One document per user per day
+  * Includes sleep, exercise, nutrition, wellness
+
+* **Files**
+
+  * Stored in Azure Blob Storage
+  * Metadata stored in Cosmos DB
+
+---
+
+## 🧠 Design Decisions
+
+* **Supabase for Auth** → simplifies authentication without custom backend logic
+* **Cosmos DB (NoSQL)** → flexible schema for evolving health metrics
+* **Blob Storage** → scalable file storage for images and reports
+* **React Router SSR** → full-stack React architecture
+
+---
+
+## ⚠️ Known Issues / Future Improvements
+
+* File upload preview and document rendering improvements
+* Enhanced error handling for failed uploads
+* Optional nutrition unit conversions (grams ↔ calories)
+* Mobile responsiveness improvements
+
+---
+
+## 🎯 Demo Notes
+
+* Log metrics to see dashboard updates
+* Upload files in the Files tab
+* Use custom date ranges to explore trends
+* Update profile information via Profile page
+
+---
+
+## ❤️ Acknowledgements
+
+Built as part of a cloud computing project, combining full-stack development with real-world cloud infrastructure.
+
+
+
