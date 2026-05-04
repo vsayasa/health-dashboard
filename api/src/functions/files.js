@@ -65,7 +65,7 @@ app.http('files', {
     }));
             return { 
                 status: 200, 
-                jsonBody: results 
+                jsonBody: filesWithSasUrls 
                 };
 
             } 

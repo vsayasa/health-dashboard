@@ -186,7 +186,7 @@ export default function Goals() {
     metricType: "sleep" | "exercise" | "nutrition",
     value: string
   ) => {
-    return fetch("https://func-vitametrics.azurewebsites.net/api/goals", {
+    return fetch(`https://func-vitametrics.azurewebsites.net/api/goals?user_id=${user.id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

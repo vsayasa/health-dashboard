@@ -85,7 +85,7 @@ export default function LogMetrics() {
       }
     };
 
-    const res = await fetch("/api/metrics", {
+    const res = await fetch("https://func-vitametrics.azurewebsites.net/api/metrics", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

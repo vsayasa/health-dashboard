@@ -1,5 +1,5 @@
 const { app } = require('@azure/functions');
-const { upsertItem, queryItems } = require("../db");
+const { upsertItem, queryItems, testVar } = require("../db");
 
 app.http('goals', {
     methods: ['GET', 'POST'],
@@ -10,7 +10,10 @@ app.http('goals', {
             const user_id = request.query.get('user_id');
         
             if (!user_id) {
-              return res.status(400).json({ error: "Missing user_id" });
+              return { 
+                status: 400, 
+                jsonBody: {error: "Missing user_id"}
+                };
             }
         
             const query = {
@@ -41,13 +44,21 @@ app.http('goals', {
               data.goal_value == null ||
               !data.start_date
             ) {
-              return res.status(400).json({ error: "Missing required fields" });
+              return {
+                status: 400,
+
+                jsonBody:
+                { error: "Missing required fields" }};
             }
         
             const goalValue = Number(data.goal_value);
         
             if (Number.isNaN(goalValue) || goalValue < 0) {
-              return res.status(400).json({ error: "Goal value must be a positive number" });
+              return {
+                status: 400,
+
+                jsonBody:
+                { error: "Goal value must be a positive number" }};
             }
         
             const goal = {
@@ -64,7 +75,7 @@ app.http('goals', {
         
             return {
                 status: 200,
-                jsonBody: results
+                jsonBody: result
             };
           } catch (err) {
                             return { 

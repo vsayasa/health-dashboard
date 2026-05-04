@@ -40,8 +40,9 @@ const deleteItem = async (containerName, id, partitionKey) => {
   const container = getContainer(containerName);
   await container.item(id, partitionKey).delete();
 };
-
+const testVar = "db.js is accessed";
 module.exports = {
+  testVar,
   blobServiceClient,
   imagesContainer,
   reportsContainer,
