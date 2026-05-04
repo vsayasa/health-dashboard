@@ -3,6 +3,7 @@ import { supabase } from "../supabaseClient";
 import { useNavigate, NavLink } from "react-router";
 import Logo from "../components/ui/Logo";
 import { Link } from "react-router";
+import { getDisplayName } from "../utils/getDisplayName";
 
 export default function Files() {
   const navigate = useNavigate();
@@ -32,9 +33,8 @@ export default function Files() {
       const { data } = await supabase.auth.getUser();
       setUser(data.user);
 
-      if (data.user?.email) {
-        const name = data.user.email.split("@")[0];
-        setFirstName(name.charAt(0).toUpperCase() + name.slice(1));
+      if (data.user) {
+        setFirstName(getDisplayName(data.user));
       }
     };
 
@@ -175,18 +175,25 @@ export default function Files() {
               </div>
             </div>
 
-            {menuOpen && (
-                <div className="absolute right-0 pt-1 w-40 z-50">
-                  <div className="bg-gray-900 border rounded">
-                    <button
-                      onClick={handleLogout}
-                      className="w-full p-2 text-left text-red-400 hover:bg-gray-800 cursor-pointer"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                </div>
-              )}
+        {menuOpen && (
+        <div className="absolute right-0 pt-1 w-44 z-50">
+            <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+            <button
+                onClick={() => navigate("/profile")}
+                className="w-full p-2 text-left text-gray-300 hover:bg-gray-800 cursor-pointer"
+            >
+                Profile
+            </button>
+
+            <button
+                onClick={handleLogout}
+                className="w-full p-2 text-left text-red-400 hover:bg-gray-800 cursor-pointer"
+            >
+                Logout
+            </button>
+            </div>
+        </div>
+        )}
           </div>
         </div>
 

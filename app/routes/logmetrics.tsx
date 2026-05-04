@@ -3,6 +3,7 @@ import { supabase } from "../supabaseClient";
 import { useNavigate, NavLink } from "react-router";
 import Logo from "../components/ui/Logo";
 import { Link } from "react-router";
+import { getDisplayName } from "../utils/getDisplayName";
 
 export default function LogMetrics() {
   const navigate = useNavigate();
@@ -48,9 +49,8 @@ const [form, setForm] = useState({
       const { data } = await supabase.auth.getUser();
       setUser(data.user);
 
-      if (data.user?.email) {
-        const name = data.user.email.split("@")[0];
-        setFirstName(name.charAt(0).toUpperCase() + name.slice(1));
+      if (data.user) {
+        setFirstName(getDisplayName(data.user));
       }
     };
 
@@ -217,17 +217,24 @@ const [form, setForm] = useState({
             </div>
 
             {menuOpen && (
-                <div className="absolute right-0 pt-1 w-40 z-50">
-                  <div className="bg-gray-900 border rounded">
-                    <button
-                      onClick={handleLogout}
-                      className="w-full p-2 text-left text-red-400 hover:bg-gray-800 cursor-pointer"
-                    >
-                      Logout
-                    </button>
-                  </div>
+              <div className="absolute right-0 pt-1 w-44 z-50">
+                <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                  <button
+                    onClick={() => navigate("/profile")}
+                    className="w-full p-2 text-left text-gray-300 hover:bg-gray-800 cursor-pointer"
+                  >
+                    Profile
+                  </button>
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full p-2 text-left text-red-400 hover:bg-gray-800 cursor-pointer"
+                  >
+                    Logout
+                  </button>
                 </div>
-              )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -250,6 +257,7 @@ const [form, setForm] = useState({
               <h2 className="mb-3 font-semibold">Sleep</h2>
 
               <input
+                type="number"
                 name="sleepHours"
                 placeholder="Hours"
                 value={form.sleepHours}
@@ -269,32 +277,36 @@ const [form, setForm] = useState({
               <h2 className="mb-3 font-semibold">Nutrition</h2>
 
               <input
+                type="number"
                 name="calories"
-                placeholder="Calories"
+                placeholder="Total Calories (kcal)"
                 value={form.calories}
                 onChange={handleChange}
                 className="w-full p-2 bg-gray-800 rounded-2xl mb-2 text-sm"
               />
 
               <input
+                type="number"
                 name="protein"
-                placeholder="Protein"
+                placeholder="Protein (grams)"
                 value={form.protein}
                 onChange={handleChange}
                 className="w-full p-2 bg-gray-800 rounded-2xl mb-2 text-sm"
               />
 
               <input
+                type="number"
                 name="carbs"
-                placeholder="Carbs"
+                placeholder="Carbs (grams)"
                 value={form.carbs}
                 onChange={handleChange}
                 className="w-full p-2 bg-gray-800 rounded-2xl mb-2 text-sm"
               />
 
               <input
+                type="number"
                 name="fat"
-                placeholder="Fat"
+                placeholder="Fat (grams)"
                 value={form.fat}
                 onChange={handleChange}
                 className="w-full p-2 bg-gray-800 rounded-2xl text-sm"
@@ -316,6 +328,7 @@ const [form, setForm] = useState({
               </select>
 
               <input
+                type="number"
                 name="exerciseHours"
                 placeholder="Hours"
                 value={form.exerciseHours}

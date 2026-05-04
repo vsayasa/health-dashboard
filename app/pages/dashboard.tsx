@@ -10,6 +10,7 @@ import {
 import { useNavigate, NavLink } from "react-router";
 import { Link } from "react-router";
 import Logo from "../components/ui/Logo";
+import { getDisplayName } from "../utils/getDisplayName";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -32,6 +33,8 @@ export default function Dashboard() {
   const [wellnessX, setWellnessX] = useState("sleep");
   const [wellnessY, setWellnessY] = useState("mood");
 
+  const [totalCalories, setTotalCalories] = useState(0);
+
   const COLORS = ["#bfd06a", "#6aaed0", "#2f98bc"];
 
   const currentDate = new Date().toLocaleDateString("en-US", {
@@ -48,8 +51,8 @@ export default function Dashboard() {
 
   const formatMMDD = (dateString: string) => {
     const d = new Date(`${dateString}T00:00:00`);
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
     return `${month}/${day}`;
   };
 
@@ -65,6 +68,15 @@ export default function Dashboard() {
 
     return dates;
   };
+
+  const getXAxisInterval = () => {
+  const totalDays = sleepData.length || exerciseData.length;
+
+  if (totalDays <= 14) return 0;
+  if (totalDays <= 30) return 4;
+  if (totalDays <= 60) return 6;
+  return Math.ceil(totalDays / 8);
+};
 
   useEffect(() => {
     const today = new Date();
@@ -87,9 +99,8 @@ export default function Dashboard() {
       const { data } = await supabase.auth.getUser();
       setUser(data.user);
 
-      if (data.user?.email) {
-        const name = data.user.email.split("@")[0];
-        setFirstName(name.charAt(0).toUpperCase() + name.slice(1));
+      if (data.user) {
+        setFirstName(getDisplayName(data.user));
       }
     };
     getUser();
@@ -108,6 +119,7 @@ export default function Dashboard() {
       setExerciseData([]);
       setWellnessData([]);
       setNutritionData([]);
+      setTotalCalories(0);
 
       const query = `https://func-vitametrics.azurewebsites.net/api/metrics?user_id=${user.id}&start_date=${startDate}&end_date=${endDate}&_=${Date.now()}`;
 
@@ -128,6 +140,7 @@ export default function Dashboard() {
 
       const dateRange = buildDateRange(startDate, endDate);
 
+      let calories = 0;
       let protein = 0;
       let carbs = 0;
       let fat = 0;
@@ -164,6 +177,7 @@ export default function Dashboard() {
         const item = latestByDate.get(date);
 
         if (item?.nutrition) {
+          calories += item.nutrition.calories || 0;
           protein += item.nutrition.protein || 0;
           carbs += item.nutrition.carbs || 0;
           fat += item.nutrition.fat || 0;
@@ -183,6 +197,7 @@ export default function Dashboard() {
       setSleepData(sleep);
       setExerciseData(exercise);
       setWellnessData(wellness);
+      setTotalCalories(calories);
 
       setNutritionData([
         { name: "Protein", value: protein },
@@ -285,8 +300,15 @@ export default function Dashboard() {
               </div>
 
               {menuOpen && (
-                <div className="absolute right-0 pt-1 w-40 z-50">
-                  <div className="bg-gray-900 border rounded">
+                <div className="absolute right-0 pt-1 w-44 z-50">
+                  <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <button
+                      onClick={() => navigate("/profile")}
+                      className="w-full p-2 text-left text-gray-300 hover:bg-gray-800 cursor-pointer"
+                    >
+                      Profile
+                    </button>
+
                     <button
                       onClick={handleLogout}
                       className="w-full p-2 text-left text-red-400 hover:bg-gray-800 cursor-pointer"
@@ -317,7 +339,7 @@ export default function Dashboard() {
               <LineChart data={sleepData} margin={{ top: 20, right: 20, left: 10, bottom: 20 }}>
                 <XAxis
                   dataKey="label"
-                  interval={range === "30" ? 4 : 0}
+                  interval={getXAxisInterval()}
                   label={{ value: "Date", position: "insideBottom", offset: -10 }}
                 />
                 <YAxis
@@ -341,34 +363,63 @@ export default function Dashboard() {
           <div className="bg-gray-900 p-4 rounded-2xl">
             <h2 className="mb-3 font-semibold">Nutrition</h2>
 
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart>
-                <Pie
-                  data={nutritionData}
-                  dataKey="value"
-                  nameKey="name"
-                  innerRadius={40}
-                  outerRadius={60}
-                  labelLine={true}
-                  label={({ cx, cy, midAngle, outerRadius, name, value }) => {
-                    const RADIAN = Math.PI / 180;
-                    const x = cx + (outerRadius + 25) * Math.cos(-midAngle * RADIAN);
-                    const y = cy + (outerRadius + 25) * Math.sin(-midAngle * RADIAN);
+          <ResponsiveContainer width="100%" height={190}>
+            <PieChart>
+              <Pie
+                data={nutritionData}
+                dataKey="value"
+                nameKey="name"
+                innerRadius={40}
+                outerRadius={60}
+                labelLine={true}
+                label={({ cx, cy, midAngle, outerRadius, name, value }) => {
+                  const RADIAN = Math.PI / 180;
+                  const x = cx + (outerRadius + 20) * Math.cos(-midAngle * RADIAN);
+                  const y = cy + (outerRadius + 20) * Math.sin(-midAngle * RADIAN);
 
-                    return (
-                      <text x={x} y={y} textAnchor={x > cx ? "start" : "end"} fill="#8f8f8f" fontSize={12}>
-                        <tspan x={x} dy="0">{name}</tspan>
-                        <tspan x={x} dy="14">{value}</tspan>
-                      </text>
-                    );
-                  }}
-                >
-                  {nutritionData.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i]} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
+                  return (
+                    <text
+                      x={x}
+                      y={y}
+                      textAnchor={x > cx ? "start" : "end"}
+                      fill="#8f8f8f"
+                      fontSize={12}
+                    >
+                      <tspan x={x} dy="0">{name}</tspan>
+                      <tspan x={x} dy="14">{value}g</tspan>
+                    </text>
+                  );
+                }}
+              >
+                {nutritionData.map((_, i) => (
+                  <Cell key={i} fill={COLORS[i]} />
+                ))}
+              </Pie>
+
+              <text
+                x="50%"
+                y="48%"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill="#ffffff"
+                fontSize={18}
+                fontWeight={600}
+              >
+                {totalCalories}
+              </text>
+
+              <text
+                x="50%"
+                y="55%"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill="#8f8f8f"
+                fontSize={11}
+              >
+                kcal
+              </text>
+            </PieChart>
+          </ResponsiveContainer>
           </div>
 
           <div className="lg:col-span-2 bg-gray-900 p-4 rounded-2xl">
@@ -388,7 +439,7 @@ export default function Dashboard() {
               <BarChart data={exerciseData} margin={{ top: 10, right: 20, left: 10, bottom: 25 }}>
                 <XAxis
                   dataKey="label"
-                  interval={range === "30" ? 4 : 0}
+                  interval={getXAxisInterval()}
                   label={{ value: "Date", position: "insideBottom", offset: -10 }}
                 />
                 <YAxis

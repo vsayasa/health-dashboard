@@ -9,6 +9,7 @@ import {
   Tooltip
 } from "recharts";
 import Logo from "../components/ui/Logo";
+import { getDisplayName } from "../utils/getDisplayName";
 
 export default function Goals() {
   const navigate = useNavigate();
@@ -53,9 +54,8 @@ export default function Goals() {
       const { data } = await supabase.auth.getUser();
       setUser(data.user);
 
-      if (data.user?.email) {
-        const name = data.user.email.split("@")[0];
-        setFirstName(name.charAt(0).toUpperCase() + name.slice(1));
+      if (data.user) {
+        setFirstName(getDisplayName(data.user));
       }
     };
 
@@ -291,17 +291,24 @@ export default function Goals() {
             </div>
 
             {menuOpen && (
-                <div className="absolute right-0 pt-1 w-40 z-50">
-                  <div className="bg-gray-900 border rounded">
-                    <button
-                      onClick={handleLogout}
-                      className="w-full p-2 text-left text-red-400 hover:bg-gray-800 cursor-pointer"
-                    >
-                      Logout
-                    </button>
-                  </div>
+              <div className="absolute right-0 pt-1 w-44 z-50">
+                <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                  <button
+                    onClick={() => navigate("/profile")}
+                    className="w-full p-2 text-left text-gray-300 hover:bg-gray-800 cursor-pointer"
+                  >
+                    Profile
+                  </button>
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full p-2 text-left text-red-400 hover:bg-gray-800 cursor-pointer"
+                  >
+                    Logout
+                  </button>
                 </div>
-              )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -380,7 +387,7 @@ export default function Goals() {
 
         <form onSubmit={handleSubmit} className="bg-gray-900 p-4 rounded-2xl">
           <div className="mb-4">
-            <h2 className="font-semibold">Set Goal Metrics</h2>
+            <h2 className="font-semibold">Set Goals</h2>
             <p className="text-gray-500 text-xs mt-1">
               Goals and stat totals are calculated using the selected date range.
             </p>

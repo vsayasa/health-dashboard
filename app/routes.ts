@@ -16,5 +16,6 @@ export default [
     route("logmetrics", "./routes/logmetrics.tsx"),
     route("goals", "./routes/goals.tsx"),
     route("files", "./routes/files.tsx"),
+    route("profile", "./routes/profile.tsx"),
   ]),
 ] satisfies RouteConfig;
