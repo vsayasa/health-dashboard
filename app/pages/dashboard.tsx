@@ -206,8 +206,8 @@ export default function Dashboard() {
         <nav className="flex flex-col gap-2 mt-4">
           {[
             { path: "dashboard", label: "Dashboard" },
-            { path: "goals", label: "Goals" }, 
             { path: "logmetrics", label: "Log Metrics" },
+            { path: "goals", label: "Goals" }, 
             { path: "files", label: "Files" },
           ].map(({ path, label }) => (
             <NavLink
@@ -285,7 +285,7 @@ export default function Dashboard() {
               </div>
 
               {menuOpen && (
-                <div className="absolute right-0 top-full pt-1 w-40 z-50">
+                <div className="absolute right-0 pt-1 w-40 z-50">
                   <div className="bg-gray-900 border rounded">
                     <button
                       onClick={handleLogout}

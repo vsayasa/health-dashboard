@@ -19,19 +19,29 @@ export default function LogMetrics() {
     year: "numeric"
   });
 
-  const [form, setForm] = useState({
-    date: new Date().toISOString().split("T")[0],
-    sleepHours: "",
-    sleepQuality: "3",
-    exerciseType: "cardio",
-    exerciseHours: "",
-    mood: "3",
-    stress: "3",
-    calories: "",
-    protein: "",
-    carbs: "",
-    fat: ""
-  });
+const getLocalDate = (offsetDays = 0) => {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+
+  // Fix timezone offset
+  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+
+  return local.toISOString().split("T")[0];
+};
+
+const [form, setForm] = useState({
+  date: getLocalDate(),
+  sleepHours: "",
+  sleepQuality: "3",
+  exerciseType: "cardio",
+  exerciseHours: "",
+  mood: "3",
+  stress: "3",
+  calories: "",
+  protein: "",
+  carbs: "",
+  fat: ""
+});
 
   useEffect(() => {
     const getUser = async () => {
@@ -160,8 +170,8 @@ export default function LogMetrics() {
         <nav className="flex flex-col gap-2 mt-4">
           {[
             { path: "dashboard", label: "Dashboard" },
-            { path: "goals", label: "Goals" }, 
             { path: "logmetrics", label: "Log Metrics" },
+            { path: "goals", label: "Goals" }, 
             { path: "files", label: "Files" },
           ].map(({ path, label }) => (
             <NavLink
@@ -207,17 +217,17 @@ export default function LogMetrics() {
             </div>
 
             {menuOpen && (
-              <div className="absolute right-0 top-full pt-1 w-40 z-50">
-                <div className="bg-gray-900 border rounded-2xl">
-                  <button
-                    onClick={handleLogout}
-                    className="w-full p-2 text-left text-red-400 hover:bg-gray-800 cursor-pointer"
-                  >
-                    Logout
-                  </button>
+                <div className="absolute right-0 pt-1 w-40 z-50">
+                  <div className="bg-gray-900 border rounded">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full p-2 text-left text-red-400 hover:bg-gray-800 cursor-pointer"
+                    >
+                      Logout
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         </div>
 
